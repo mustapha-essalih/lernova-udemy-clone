@@ -1,0 +1,190 @@
+package dev.api.authentication;
+
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import dev.api.authentication.model.BaseEntity;
+import dev.api.authentication.model.Roles;
+import dev.api.authentication.request.LoginRequest;
+import dev.api.authentication.request.RegistrationRequest;
+import dev.api.common.EmailService;
+import dev.api.instructors.model.Instructors;
+import dev.api.instructors.repository.InstructorsRepository;
+import dev.api.security.JwtService;
+import dev.api.students.model.Students;
+import dev.api.students.repository.StudentsRepository;
+import io.micrometer.common.lang.Nullable;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+
+@Service
+public class AuthenticationService {
+
+    private StudentsRepository studentsRepository;
+    private InstructorsRepository instructorsRepository;
+    private PasswordEncoder passwordEncoder;
+    private AuthenticationManager authenticationManager;
+    private JwtService jwtService;
+    private EmailService emailService;
+
+    @Value("${site.base.url.http}")
+    private String urlOfRequest;
+
+    public AuthenticationService(StudentsRepository studentsRepository, InstructorsRepository instructorsRepository,
+            PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService,
+            EmailService emailService) {
+        this.studentsRepository = studentsRepository;
+        this.instructorsRepository = instructorsRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.emailService = emailService;
+    }
+
+    public ResponseEntity<?> registerNewStudent(RegistrationRequest request) {
+
+        Map<String,String> user = new HashMap<>();
+        if (studentsRepository.findByUsername(request.getUsername()).isPresent() ||
+                studentsRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username or email already exists");
+        } else {
+
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body("Passwords do not match");
+            }
+
+            String passwordHashed = passwordEncoder.encode(request.getPassword());
+
+            Students student = new Students(request.getUsername(), request.getEmail(), passwordHashed,
+                    request.getFirstName(),
+                    request.getLastName(), null, Roles.STUDENT);
+
+            sendEmailVerification(student, null);
+            user.put("username", student.getUsername());
+            user.put("email", student.getEmail());
+        }
+        return ResponseEntity.status(201).body(user);
+    }
+
+    public ResponseEntity<?> registerNewInstructor(RegistrationRequest request) {
+        
+        Map<String,String> user = new HashMap<>();
+
+        if (instructorsRepository.findByUsername(request.getUsername()).isPresent() ||
+                instructorsRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username or email already exists");
+        } else {
+
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body("Passwords do not match");
+            }
+
+            String passwordHashed = passwordEncoder.encode(request.getPassword());
+
+            Instructors instructor = new Instructors(request.getUsername(), request.getEmail(), passwordHashed,
+                    request.getFirstName(),
+                    request.getLastName(), null, Roles.INSTRUCTOR);
+
+            sendEmailVerification(null, instructor);
+            user.put("username", instructor.getUsername());
+            user.put("email", instructor.getEmail());
+        }
+
+        return ResponseEntity.status(201).body(user);
+    }
+
+    public ResponseEntity<?> login(LoginRequest request) {
+
+        Authentication authenticationRequest = UsernamePasswordAuthenticationToken
+                .unauthenticated(request.getUsername(), request.getPassword());
+        String jwt = null;
+
+        try {
+            Authentication authenticatedUser = this.authenticationManager.authenticate(authenticationRequest);
+
+            jwt = jwtService.generateToken(authenticatedUser.getName());
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid username or password");
+        }
+
+        if (jwt == null) {
+            return ResponseEntity.status(500).body("Failed to generate JWT token");
+        }
+
+        ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwt)
+                // .httpOnly(true)
+                // .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(jwt);
+    }
+
+    public ResponseEntity<String> resendEmailVerification(String email) {
+
+        Students student = studentsRepository.findByEmail(email).orElse(null);
+        if (student != null) {
+            if (student.isEnabled())
+                return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
+
+            sendEmailVerification(student, null);
+            return ResponseEntity.ok("Please, check your email for to complete your registration");
+        }
+
+        Instructors instructor = instructorsRepository.findByEmail(email).orElse(null);
+        if (instructor != null) {
+            if (instructor.isEnabled())
+                return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
+
+            sendEmailVerification(null, instructor);
+            return ResponseEntity.ok("Please, check your email for to complete your registration");
+        }
+
+        return ResponseEntity.badRequest().body("user not found");
+    }
+
+    private void sendEmailVerification(Students student, Instructors instructor) {
+
+        String generateVerificationToken = UUID.randomUUID().toString();
+        if (student != null) {
+            student.setVerificationCode(generateVerificationToken);
+            student.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
+
+            studentsRepository.save(student);
+
+            String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
+
+            emailService.sendEmailVerification(student.getUsername(), student.getEmail(), url);
+        } else {
+            instructor.setVerificationCode(generateVerificationToken);
+            instructor.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
+
+            instructorsRepository.save(instructor);
+
+            String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
+
+            emailService.sendEmailVerification(instructor.getUsername(), instructor.getEmail(), url);
+        }
+
+    }
+ 
+}
