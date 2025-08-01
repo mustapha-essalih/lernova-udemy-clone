@@ -1,4 +1,12 @@
 
+===========
+
+- upload the courses to s3
+- user can upload to google drive , onedrive...
+- notes the types of search in elstic that you work on it
+
+
+===========
 
 to front : home page some faetures will not implement it
             - try implemnt like the course page

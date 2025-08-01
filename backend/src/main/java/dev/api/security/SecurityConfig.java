@@ -13,7 +13,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import java.util.Arrays;
@@ -30,7 +29,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/v1/auth/**")
+                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/v1/auth/**", "/api/v1/courses/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
