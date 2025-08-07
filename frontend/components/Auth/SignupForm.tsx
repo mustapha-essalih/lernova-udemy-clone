@@ -46,7 +46,7 @@ export default function SignupForm({role}: {role: 'students' | 'instructors'}) {
 	
   const onSubmit = async (data: SignupFormData) => {
 		try {
-			const response = await axios.post(`http://learnova.com:8081/api/v1/auth/${role}`, data);
+			const response = await axios.post(`http://localhost:8080/api/v1/auth/${role}`, data); // use localhost not 127.0.0.1
 
 			setSuccessLogin(false);
 			setTimeout(() => {
