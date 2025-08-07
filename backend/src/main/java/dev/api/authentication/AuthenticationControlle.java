@@ -6,11 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.api.authentication.request.LoginRequest;
 import dev.api.authentication.request.RegistrationRequest;
 import dev.api.common.EmailService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
