@@ -39,6 +39,8 @@ public class Courses {
     @Column(nullable = false, unique = true)
     private String title;
 
+    // private String subTitle;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 

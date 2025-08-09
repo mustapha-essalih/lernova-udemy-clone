@@ -6,6 +6,7 @@ package dev.api.exceptions;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.DisabledException;
@@ -20,18 +21,28 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> runTimeException(RuntimeException e) {
        
         if (e instanceof AccessDeniedException) 
-        {
             return ResponseEntity.status(403).body("you don't have permission to access this resource");
-        }
+ 
        
         System.out.println("RuntimeException");
         System.out.println(e.getLocalizedMessage());
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("status", 500);
         errorDetails.put("error", "Internal Server Error");
-        errorDetails.put("message", e.getLocalizedMessage());
         return ResponseEntity.status(500).body(errorDetails);
     }
+
+
+    @ExceptionHandler(value = InternalServerError.class)
+    public ResponseEntity<?> internalServerError(InternalServerError e) {
+         
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("status", 500);
+        errorDetails.put("error", "Internal Server Error");
+        errorDetails.put("message", e.getMessage());
+        return ResponseEntity.status(500).body(errorDetails);
+    }
+
 
 
     @ExceptionHandler(value = ResourceNotFoundException.class)

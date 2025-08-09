@@ -1,26 +1,19 @@
 package dev.api.courses.requests;
  
 public class CourseDocumentRequest {
-
+     
     private String title;
-
-
     private String subtitle;
-
-
     private String description;
-    private String instructorName;
-
+    private String instructor;
     private String category;
     private String subCategory;
     private String level;
     private String language;
-
     private float price;
     private float averageRating;
     private int numReviews;
     private int numStudents;
-    
     public String getTitle() {
         return title;
     }
@@ -39,11 +32,11 @@ public class CourseDocumentRequest {
     public void setDescription(String description) {
         this.description = description;
     }
-    public String getInstructorName() {
-        return instructorName;
+    public String getInstructor() {
+        return instructor;
     }
-    public void setInstructorName(String instructorName) {
-        this.instructorName = instructorName;
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
     }
     public String getCategory() {
         return category;
