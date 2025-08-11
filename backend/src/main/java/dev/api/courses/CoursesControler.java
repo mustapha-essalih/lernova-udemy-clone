@@ -8,14 +8,20 @@ import java.util.stream.Collectors;
 import org.apache.http.HttpStatus;
 import org.elasticsearch.client.RequestOptions;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.StringQuery;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.suggest.Completion;
 import org.springframework.data.elasticsearch.core.suggest.response.CompletionSuggestion;
 import org.springframework.data.elasticsearch.core.suggest.response.Suggest;
+import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion;
+import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion.Entry;
+import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion.Entry.Option;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,16 +33,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.FuzzyQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.CompletionSuggest;
-import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggester;
+import co.elastic.clients.elasticsearch.core.search.FieldSuggester;
 import co.elastic.clients.elasticsearch.core.search.SuggestFuzziness;
 import co.elastic.clients.elasticsearch.core.search.Suggester;
-import co.elastic.clients.elasticsearch.core.search.Suggestion;
+import co.elastic.clients.elasticsearch.core.search.SuggestionBuilders;
 import dev.api.courses.model.CourseDocument;
 import dev.api.courses.repository.CourseDocumentRepository;
 import dev.api.courses.requests.CourseDocumentRequest;
@@ -46,7 +50,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RequestMapping("/api/v1/courses")
 @RestController
@@ -61,15 +64,18 @@ public class CoursesControler {
     private String geminiApiKey;
 
     private WebClient webClient;
- 
-    private   ElasticsearchOperations elasticsearchOperations;
+
+    private ElasticsearchOperations elasticsearchOperations;
     private ElasticsearchClient elasticsearchClient;
-    public CoursesControler(WebClient.Builder webClient,ElasticsearchOperations elasticsearchOperations,
+
+    public CoursesControler(WebClient.Builder webClient, ElasticsearchOperations elasticsearchOperations,
+            ElasticsearchClient elasticsearchClient,
             CourseDocumentRepository courseDocumentRepository) {
         this.courseDocumentRepository = courseDocumentRepository;
         this.webClient = webClient.build();
+        this.elasticsearchClient = elasticsearchClient;
         this.elasticsearchOperations = elasticsearchOperations;
-    } 
+    }
 
     private String generateSuggestions(String title, String subtitle, String category, String subcategory,
             String instructor) throws JsonMappingException, JsonProcessingException {
@@ -182,56 +188,86 @@ public class CoursesControler {
 
         return ResponseEntity.status(201).build();
     }
-  
-
-     @GetMapping("/")
-    public SearchHits<CourseDocument> suggestCourses()  {
  
-        // Suggester suggester = Suggester.Builder().build()
+    @GetMapping("/get")
+    public List<? extends Entry<? extends Option>> getCourseSuggestions(@RequestParam String prefix) {
+        SuggestFuzziness fuzziness = SuggestFuzziness.of(f -> f
+                .fuzziness("AUTO") 
+                .transpositions(true));
 
-        // NativeQuery nativeQuery = NativeQuery.builder()
+        
+        CompletionSuggester completionSuggester = CompletionSuggester.of(c -> c
+                .field("suggest")
+                .size(10)
+                .skipDuplicates(true)
+                .fuzzy(fuzziness));
 
-        // .withSuggester()
-        // // .withSuggest(suggest -> suggest.            
-        // // .addSuggestion("course_suggest", completion -> completion
-        // //                 .prefix(prefix)
-        // //                 .field("suggest")
-        // //                 .size(10)
-        // //                 .skipDuplicates(true)
-        // //                 .fuzzy(fuzzy -> fuzzy
-        // //                     .fuzziness(2)
-        // //                     .prefixLength(1)
-        // //                     .transpositions(true)
-        // //                 )
-        // //             )
-        //         // )
-        // .build();
- 
- 
-        String jsonQuery = """
-    {
-      "suggest": {
-        "course_suggest": {
-          "prefix": "%s",
-          "completion": {
-            "field": "suggestions",
-            "size": 10,
-            "skip_duplicates": true,
-            "fuzzy": {
-              "fuzziness": 2,
-              "prefix_length": 1,
-              "transpositions": true
-            }
-          }
-        }
-      }
+        
+        FieldSuggester fieldSuggester = FieldSuggester.of(fs -> fs
+                .prefix(prefix)
+                .completion(completionSuggester));
+        NativeQuery searchQuery = new NativeQueryBuilder().withSuggester(Suggester.of(s -> s
+                .suggesters("course_suggest", fieldSuggester)))
+                .build();
+
+        SearchHits<CourseDocument> articles = elasticsearchOperations.search(searchQuery, CourseDocument.class,
+                IndexCoordinates.of("courses"));
+
+        Suggest suggest = articles.getSuggest();
+        Suggestion<? extends Entry<? extends Option>> completionSuggestion = suggest.getSuggestion("course_suggest");
+
+        return completionSuggestion.getEntries();
     }
-    """.formatted("python");
 
-    StringQuery query = new StringQuery(jsonQuery);
-          return elasticsearchOperations.search(query, CourseDocument.class);
-    
+
+    @GetMapping("/test")
+public Object getCourseSuggestion(@RequestParam String prefix) {
+    SuggestFuzziness fuzziness = SuggestFuzziness.of(f -> f
+            .fuzziness("AUTO")
+            .transpositions(true));
+
+    CompletionSuggester completionSuggester = CompletionSuggester.of(c -> c
+            .field("suggest")
+            .size(10)
+            .skipDuplicates(true)
+            .fuzzy(fuzziness));
+
+    FieldSuggester fieldSuggester = FieldSuggester.of(fs -> fs
+            .prefix(prefix)
+            .completion(completionSuggester));
+
+    NativeQuery suggestQuery = new NativeQueryBuilder()
+            .withSuggester(Suggester.of(s -> s
+                    .suggesters("course_suggest", fieldSuggester)))
+            .build();
+
+    SearchHits<CourseDocument> suggestHits = elasticsearchOperations.search(suggestQuery, CourseDocument.class,
+            IndexCoordinates.of("courses"));
+
+    Suggest suggest = suggestHits.getSuggest();
+    Suggestion<? extends Entry<? extends Option>> completionSuggestion = suggest.getSuggestion("course_suggest");
+
+    // Check if suggestions exist
+    if (completionSuggestion != null && !completionSuggestion.getEntries().isEmpty()) {
+        // Return suggestions entries (autocomplete results)
+        return completionSuggestion.getEntries();
+    } else {
+        // No suggestions, fallback to full-text search on title
+        NativeQuery fullTextQuery = new NativeQueryBuilder()
+            .withQuery(q -> q
+                .match(m -> m
+                    .field("title")
+                    .query(prefix)
+                ))
+            .build();
+
+        SearchHits<CourseDocument> fullTextHits = elasticsearchOperations.search(fullTextQuery,
+                CourseDocument.class, IndexCoordinates.of("courses"));
+
+        // Return list of matched courses (or map to your desired response)
+        return fullTextHits.getSearchHits();
     }
+}
 
 
 }
