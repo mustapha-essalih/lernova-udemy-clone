@@ -1,6 +1,7 @@
 package dev.api.courses.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -23,27 +24,28 @@ public class CourseDocument {
     })
     private String title;
 
-    // Subtitle with trigram subfield
+
     @MultiField(mainField = @Field(type = FieldType.Text), otherFields = {
             @InnerField(suffix = "trigram", type = FieldType.Text, analyzer = "trigram")
     })
     private String subtitle;
 
-    // Description with trigram subfield
+
     @MultiField(mainField = @Field(type = FieldType.Text), otherFields = {
             @InnerField(suffix = "trigram", type = FieldType.Text, analyzer = "trigram")
     })
     private String description;
 
-    // Instructor with trigram subfield
+
     @MultiField(mainField = @Field(type = FieldType.Text), otherFields = {
             @InnerField(suffix = "trigram", type = FieldType.Text, analyzer = "trigram")
     })
     private String instructor;
 
+    @CompletionField
     private Completion suggest;
 
-    // Extra fields
+
     @Field(type = FieldType.Keyword)
     private String category;
 
@@ -68,9 +70,9 @@ public class CourseDocument {
     @Field(type = FieldType.Integer)
     private int numStudents;
 
-    // @Field(type = FieldType.Date, format = FieldArrayType.NONE, pattern =
-    // "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    // private Instant lastUpdated;
+
+
+
 
     public CourseDocument() {
     }

@@ -1,8 +1,5 @@
 package dev.api.exceptions;
 
-
-
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,19 +8,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
- 
+import org.springframework.web.server.MissingRequestValueException;
+
 @RestControllerAdvice
-public class GlobalExceptionHandler { 
- 
+public class GlobalExceptionHandler {
+
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseEntity<?> runTimeException(RuntimeException e) {
-       
-        if (e instanceof AccessDeniedException) 
+
+        if (e instanceof AccessDeniedException)
             return ResponseEntity.status(403).body("you don't have permission to access this resource");
- 
-       
+
         System.out.println("RuntimeException");
         System.out.println(e.getLocalizedMessage());
         Map<String, Object> errorDetails = new HashMap<>();
@@ -32,10 +30,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(500).body(errorDetails);
     }
 
-
     @ExceptionHandler(value = InternalServerError.class)
     public ResponseEntity<?> internalServerError(InternalServerError e) {
-         
+
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("status", 500);
         errorDetails.put("error", "Internal Server Error");
@@ -43,11 +40,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(500).body(errorDetails);
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<String> handleMissingParams(MissingServletRequestParameterException e) {
+        String paramName = e.getParameterName();
+        String message = "Required request parameter '" + paramName + "' is missing";
+        return ResponseEntity.badRequest().body(message);
 
+    }
 
     @ExceptionHandler(value = ResourceNotFoundException.class)
-    public ResponseEntity<?> courceException(ResourceNotFoundException e) 
-    {
+    public ResponseEntity<?> resourceNorFound(ResourceNotFoundException e) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("status", 404);
         errorDetails.put("error", "Resource Not Found");

@@ -1,15 +1,14 @@
 package dev.api.courses;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
-import org.elasticsearch.client.RequestOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -21,7 +20,6 @@ import org.springframework.data.elasticsearch.core.suggest.response.Suggest;
 import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion;
 import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion.Entry;
 import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion.Entry.Option;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,19 +31,29 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.ScoreSort;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.WildcardQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggester;
 import co.elastic.clients.elasticsearch.core.search.FieldSuggester;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.elasticsearch.core.search.SuggestFuzziness;
 import co.elastic.clients.elasticsearch.core.search.Suggester;
-import co.elastic.clients.elasticsearch.core.search.SuggestionBuilders;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
+import co.elastic.clients.elasticsearch.core.search.TotalHitsRelation;
 import dev.api.courses.model.CourseDocument;
+import dev.api.courses.model.SuggestionDocument;
 import dev.api.courses.repository.CourseDocumentRepository;
+import dev.api.courses.repository.SuggestionDocumentRepository;
 import dev.api.courses.requests.CourseDocumentRequest;
-import dev.api.exceptions.InternalServerError;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,15 +74,17 @@ public class CoursesControler {
     private WebClient webClient;
 
     private ElasticsearchOperations elasticsearchOperations;
+    private SuggestionDocumentRepository suggestionDocumentRepository;
     private ElasticsearchClient elasticsearchClient;
 
     public CoursesControler(WebClient.Builder webClient, ElasticsearchOperations elasticsearchOperations,
-            ElasticsearchClient elasticsearchClient,
+            SuggestionDocumentRepository suggestionDocumentRepository, ElasticsearchClient elasticsearchClient,
             CourseDocumentRepository courseDocumentRepository) {
         this.courseDocumentRepository = courseDocumentRepository;
         this.webClient = webClient.build();
-        this.elasticsearchClient = elasticsearchClient;
         this.elasticsearchOperations = elasticsearchOperations;
+        this.suggestionDocumentRepository = suggestionDocumentRepository;
+        this.elasticsearchClient = elasticsearchClient;
     }
 
     private String generateSuggestions(String title, String subtitle, String category, String subcategory,
@@ -161,6 +171,7 @@ public class CoursesControler {
         document.setNumReviews(request.getNumReviews());
         document.setNumStudents(request.getNumStudents());
 
+        List<SuggestionDocument> inpuList = new ArrayList<>();
         try {
             String suggestions = generateSuggestions(request.getTitle(), request.getSubtitle(), request.getCategory(),
                     request.getSubCategory(), request.getInstructor()).trim();
@@ -172,11 +183,15 @@ public class CoursesControler {
 
                 for (int i = 0; i < input.length; i++) {
                     input[i] = input[i].replace("\n", "").trim();
+                    SuggestionDocument suggestionDocument = new SuggestionDocument();
+                    suggestionDocument.setPhrase(input[i]);
+                    inpuList.add(suggestionDocument);
                 }
                 completion.setInput(input);
                 document.setSuggest(completion);
 
                 courseDocumentRepository.save(document);
+                suggestionDocumentRepository.saveAll(inpuList);
             } else
                 return ResponseEntity.status(HttpStatus.SC_INSUFFICIENT_STORAGE).body(
                         "Failed to generate course search suggestions: An internal processing error occurred. Please try again later");
@@ -188,21 +203,20 @@ public class CoursesControler {
 
         return ResponseEntity.status(201).build();
     }
- 
-    @GetMapping("/get")
-    public List<? extends Entry<? extends Option>> getCourseSuggestions(@RequestParam String prefix) {
+
+    @GetMapping("/suggestions")
+    public Object getCourseSuggestions(@RequestParam String prefix) {
+
         SuggestFuzziness fuzziness = SuggestFuzziness.of(f -> f
-                .fuzziness("AUTO") 
+                .fuzziness("AUTO")
                 .transpositions(true));
 
-        
         CompletionSuggester completionSuggester = CompletionSuggester.of(c -> c
                 .field("suggest")
                 .size(10)
                 .skipDuplicates(true)
                 .fuzzy(fuzziness));
 
-        
         FieldSuggester fieldSuggester = FieldSuggester.of(fs -> fs
                 .prefix(prefix)
                 .completion(completionSuggester));
@@ -214,60 +228,50 @@ public class CoursesControler {
                 IndexCoordinates.of("courses"));
 
         Suggest suggest = articles.getSuggest();
+ 
         Suggestion<? extends Entry<? extends Option>> completionSuggestion = suggest.getSuggestion("course_suggest");
 
         return completionSuggestion.getEntries();
+
+ 
     }
 
+// add a search for instrcutor to match it
 
     @GetMapping("/test")
-public Object getCourseSuggestion(@RequestParam String prefix) {
-    SuggestFuzziness fuzziness = SuggestFuzziness.of(f -> f
-            .fuzziness("AUTO")
-            .transpositions(true));
+    public List<String> searchGeneralSuggestions(String searchInput) {
 
-    CompletionSuggester completionSuggester = CompletionSuggester.of(c -> c
-            .field("suggest")
-            .size(10)
-            .skipDuplicates(true)
-            .fuzzy(fuzziness));
+        String queryString = searchInput;
+        String wildcardValue = "*" + searchInput.toLowerCase() + "*";
 
-    FieldSuggester fieldSuggester = FieldSuggester.of(fs -> fs
-            .prefix(prefix)
-            .completion(completionSuggester));
+        Query matchQuery = MatchQuery.of(m -> m
+                .field("phrase")
+                .query(queryString)
+                .fuzziness("AUTO"))._toQuery();
 
-    NativeQuery suggestQuery = new NativeQueryBuilder()
-            .withSuggester(Suggester.of(s -> s
-                    .suggesters("course_suggest", fieldSuggester)))
-            .build();
+        Query wildcardQuery = WildcardQuery.of(w -> w
+                .field("phrase")
+                .value(wildcardValue)
+                .boost(0.8f))._toQuery();
 
-    SearchHits<CourseDocument> suggestHits = elasticsearchOperations.search(suggestQuery, CourseDocument.class,
-            IndexCoordinates.of("courses"));
+        Query boolQuery = BoolQuery.of(b -> b
+                .should(matchQuery)
+                .should(wildcardQuery)
+                .minimumShouldMatch("1"))._toQuery();
 
-    Suggest suggest = suggestHits.getSuggest();
-    Suggestion<? extends Entry<? extends Option>> completionSuggestion = suggest.getSuggestion("course_suggest");
+        NativeQuery searchQuery = NativeQuery.builder()
+                .withQuery(boolQuery)
+                .withPageable(PageRequest.of(0, 5))
+                .withSort(SortOptions.of(s -> s
+                        .score(ScoreSort.of(ss -> ss.order(SortOrder.Desc)))))
+                .build();
 
-    // Check if suggestions exist
-    if (completionSuggestion != null && !completionSuggestion.getEntries().isEmpty()) {
-        // Return suggestions entries (autocomplete results)
-        return completionSuggestion.getEntries();
-    } else {
-        // No suggestions, fallback to full-text search on title
-        NativeQuery fullTextQuery = new NativeQueryBuilder()
-            .withQuery(q -> q
-                .match(m -> m
-                    .field("title")
-                    .query(prefix)
-                ))
-            .build();
+        SearchHits<SuggestionDocument> hits = elasticsearchOperations.search(searchQuery, SuggestionDocument.class,
+                IndexCoordinates.of("general_suggestions"));
 
-        SearchHits<CourseDocument> fullTextHits = elasticsearchOperations.search(fullTextQuery,
-                CourseDocument.class, IndexCoordinates.of("courses"));
-
-        // Return list of matched courses (or map to your desired response)
-        return fullTextHits.getSearchHits();
+        return hits.getSearchHits().stream()
+                .map(hit -> hit.getContent().getPhrase())
+                .collect(Collectors.toList());
     }
-}
-
 
 }
