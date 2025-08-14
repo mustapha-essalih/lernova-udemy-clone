@@ -2,7 +2,6 @@
 
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 
@@ -36,17 +35,6 @@ export default function LoginForm() {
     }
     // Handle form submission logic here, e.g., API call to log in the user
   };
-
-  const onError = (error: any) => {
-    console.error("Form submission error:", error);
-
-    // Handle form submission error here, e.g., show error message to the user
-  };
-
-  useEffect(() => {
-    console.log("Email:", email);
-    // console.log("Password:", password);
-  }, [email]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
