@@ -46,9 +46,12 @@ export default function LoginForm() {
   }, [email]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onError)} className="flex flex-col gap-4">
-      <AuthInput type="email" placeholder="email" {...register("email")} error={errors.email?.message} />
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <AuthInput type="text" placeholder="username" {...register("username")} error={errors.username?.message} />
       <AuthInput type="password" placeholder="password" {...register("password")} error={errors.password?.message} />
+      {
+        errors.root?.message && <ErrorMessage content={errors.root?.message} />
+      }
       <button
         type="submit"
         disabled={isSubmitting}
