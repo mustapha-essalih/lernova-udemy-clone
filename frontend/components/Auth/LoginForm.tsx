@@ -16,7 +16,9 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const {register, handleSubmit, watch, formState:{errors}, } = useForm({
+  const { login } = useAuth();
+
+  const {register, handleSubmit, setError, formState:{errors, isSubmitting}, } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
@@ -49,9 +51,13 @@ export default function LoginForm() {
       <AuthInput type="password" placeholder="password" {...register("password")} error={errors.password?.message} />
       <button
         type="submit"
-        className="bg-emerald-500 rounded-full w-fit px-10 py-3 ml-auto text-white font-medium cursor-pointer" 
+        disabled={isSubmitting}
+        className={`bg-emerald-500 rounded-full h-[48px] w-[115px] ml-auto flex items-center justify-center text-white font-medium ${isSubmitting ? 'cursor-not-allowed' : 'cursor-pointer' }`} 
       >
-        login
+        {
+          isSubmitting ? <CircularProgress size={22} thickness={5} color="inherit" />
+           : "login"
+        }
       </button>
       <hr className="border-gray-300" />
       <button type="button" className="bg-gray-100 shadow-md rounded-full py-3 px-6 w-full flex items-center cursor-pointer gap-6">
