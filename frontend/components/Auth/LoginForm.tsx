@@ -23,12 +23,12 @@ export default function LoginForm() {
       password: "",
     },  
   });
-
-  // Watch the form values (optional, for debugging)
-  const email = watch("email");
-
-  const onSubmit = (data: LoginFormData) => {
-    console.log("Form submitted with data:", data);
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      await login(data.username, data.password);
+    } catch(e) {
+      if (e instanceof Error) setError('root', {message: e.message})
+    }
     // Handle form submission logic here, e.g., API call to log in the user
   };
 
