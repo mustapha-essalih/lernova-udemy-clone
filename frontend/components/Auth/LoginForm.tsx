@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import AuthInput from "../ui/AuthInput";
 
 const loginSchema = z.object({
-  email: z.email("Invalid email address"),
+  username: z.string().min(1, "Username is required"),
   password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
@@ -19,7 +19,7 @@ export default function LoginForm() {
   const {register, handleSubmit, watch, formState:{errors}, } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },  
   });
