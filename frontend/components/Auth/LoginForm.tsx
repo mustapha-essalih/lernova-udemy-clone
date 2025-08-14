@@ -7,6 +7,9 @@ import { FaGoogle } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 
 import AuthInput from "../ui/AuthInput";
+import { useAuth } from "../context/AuthContext";
+import ErrorMessage from "../ui/ErrorMessage";
+import { CircularProgress } from "@mui/material";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
