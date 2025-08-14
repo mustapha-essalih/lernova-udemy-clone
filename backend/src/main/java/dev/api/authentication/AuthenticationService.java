@@ -135,16 +135,8 @@ public class AuthenticationService {
             return ResponseEntity.status(500).body("Failed to generate JWT token");
         }
         
-        ResponseCookie jwtCookie = ResponseCookie.from("data", jwt)
-                // .httpOnly(true)
-                // .secure(true)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60)
-                .build();
-
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(generaleService.getUserInfos(authenticationRequest.getName()));
+                .body(generaleService.getUserInfos(authenticationRequest.getName() , jwt));
     }
 
     public ResponseEntity<String> resendEmailVerification(String email) {

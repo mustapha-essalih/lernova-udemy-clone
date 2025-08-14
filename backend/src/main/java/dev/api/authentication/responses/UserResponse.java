@@ -7,22 +7,29 @@ public class UserResponse  {
     private String lastName;
     private String email;
     private String username;
-    
+    private String jwt;
     
     
     public UserResponse() {
     }
-    public UserResponse(Integer id, String firstName, String lastName, String email, String username) {
+
+    
+    
+    public UserResponse(Integer id, String firstName, String lastName, String email, String username, String jwt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.username = username;
+        this.jwt = jwt;
     }
-    
-    public UserResponse(Integer id, String username) {
+
+
+
+    public UserResponse(Integer id, String username , String jwt) {
         this.id = id;
         this.username = username;
+        this.jwt = jwt;
     }
 
     public Integer getId() {
@@ -55,12 +62,20 @@ public class UserResponse  {
     public void setUsername(String username) {
         this.username = username;
     }
-    
+   
+    public String getJwt() {
+        return jwt;
+    }
 
-    
+    public void setJwt(String jwt) {
+        this.jwt = jwt;
+    }
+
     @Override
     public String toString() {
         return "[id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-                + ", username=" + username + "]";
+                + ", username=" + username + ", jwt=" + jwt + "]";
     }
+
+    
 }

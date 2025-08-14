@@ -13,9 +13,6 @@ public class InstructorsService {
 
     private InstructorsRepository instructorsRepository;
 
-    public UserResponse getInstructorInfos(String username) {
-        Instructors instructor = instructorsRepository.findByUsername(username).get();
-        return new UserResponse(instructor.getId(), instructor.getFirst_name(), instructor.getLast_name(), instructor.getEmail(), instructor.getUsername());
-    }
+ 
     
 }

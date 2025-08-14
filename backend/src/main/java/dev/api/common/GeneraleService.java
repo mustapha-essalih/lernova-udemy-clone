@@ -26,27 +26,27 @@ public class GeneraleService {
 
 
 
-    public UserResponse getUserInfos(String username){
+    public UserResponse getUserInfos(String username, String jwt){
         Students student = studentsRepository.findByUsername(username).orElse(null);
         if(student != null) 
-            return new UserResponse(student.getId(), student.getFirst_name(), student.getLast_name(), student.getEmail(), student.getUsername());
+            return new UserResponse(student.getId(), student.getFirst_name(), student.getLast_name(), student.getEmail(), student.getUsername() , jwt);
 
         Instructors instructor = instructorsRepository.findByUsername(username).orElse(null);
         
         if (instructor != null)
-            return new UserResponse(instructor.getId(), instructor.getFirst_name(), instructor.getLast_name(), instructor.getEmail(), instructor.getUsername());
+            return new UserResponse(instructor.getId(), instructor.getFirst_name(), instructor.getLast_name(), instructor.getEmail(), instructor.getUsername() , jwt);
 
         Admin admin = adminRepository.findByUsername(username).orElse(null);
 
 
         if (admin != null)
-            return new UserResponse(admin.getId(),  admin.getUsername());
+            return new UserResponse(admin.getId(),  admin.getUsername() , jwt);
 
         Managers manager = managersRepository.findByUsername(username).orElse(null);
 
 
         if (manager != null)
-            return new UserResponse(manager.getId(),  manager.getUsername());
+            return new UserResponse(manager.getId(),  manager.getUsername(), jwt);
 
         return null;
     }
