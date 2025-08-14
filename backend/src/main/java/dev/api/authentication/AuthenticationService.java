@@ -23,7 +23,10 @@ import dev.api.authentication.model.BaseEntity;
 import dev.api.authentication.model.Roles;
 import dev.api.authentication.request.LoginRequest;
 import dev.api.authentication.request.RegistrationRequest;
+import dev.api.authentication.responses.UserResponse;
 import dev.api.common.EmailService;
+import dev.api.common.GeneraleService;
+import dev.api.instructors.InstructorsService;
 import dev.api.instructors.model.Instructors;
 import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.security.JwtService;
@@ -42,11 +45,14 @@ public class AuthenticationService {
     private AuthenticationManager authenticationManager;
     private JwtService jwtService;
     private EmailService emailService;
+    private GeneraleService generaleService;
+
+
 
     @Value("${site.base.url.http}")
     private String urlOfRequest;
-
-    public AuthenticationService(StudentsRepository studentsRepository, InstructorsRepository instructorsRepository,
+ 
+    public AuthenticationService(StudentsRepository studentsRepository, InstructorsRepository instructorsRepository,GeneraleService generaleService,
             PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService,
             EmailService emailService) {
         this.studentsRepository = studentsRepository;
@@ -54,7 +60,8 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
-        this.emailService = emailService;
+        this.emailService = emailService; 
+       this.generaleService = generaleService;
     }
 
     public ResponseEntity<?> registerNewStudent(RegistrationRequest request) {
@@ -78,6 +85,7 @@ public class AuthenticationService {
             sendEmailVerification(student, null);
             user.put("username", student.getUsername());
             user.put("email", student.getEmail());
+
         }
         return ResponseEntity.status(201).body(user);
     }
@@ -117,8 +125,8 @@ public class AuthenticationService {
 
         try {
             Authentication authenticatedUser = this.authenticationManager.authenticate(authenticationRequest);
-
             jwt = jwtService.generateToken(authenticatedUser.getName());
+
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
@@ -126,8 +134,8 @@ public class AuthenticationService {
         if (jwt == null) {
             return ResponseEntity.status(500).body("Failed to generate JWT token");
         }
-
-        ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwt)
+        
+        ResponseCookie jwtCookie = ResponseCookie.from("data", jwt)
                 // .httpOnly(true)
                 // .secure(true)
                 .path("/")
@@ -136,7 +144,7 @@ public class AuthenticationService {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(jwt);
+                .body(generaleService.getUserInfos(authenticationRequest.getName()));
     }
 
     public ResponseEntity<String> resendEmailVerification(String email) {
@@ -170,7 +178,6 @@ public class AuthenticationService {
             student.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
             studentsRepository.save(student);
-
             String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
 
             emailService.sendEmailVerification(student.getUsername(), student.getEmail(), url);
@@ -178,7 +185,7 @@ public class AuthenticationService {
             instructor.setVerificationCode(generateVerificationToken);
             instructor.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
-            instructorsRepository.save(instructor);
+            instructorsRepository.save(instructor); 
 
             String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
 
