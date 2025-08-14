@@ -19,6 +19,12 @@ public class UserResponse  {
         this.email = email;
         this.username = username;
     }
+    
+    public UserResponse(Integer id, String username) {
+        this.id = id;
+        this.username = username;
+    }
+
     public Integer getId() {
         return id;
     }
