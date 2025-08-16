@@ -67,6 +67,9 @@ public class Courses {
     @Column(nullable = false, length = 20)
     private Status status;
 
+
+    // level
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

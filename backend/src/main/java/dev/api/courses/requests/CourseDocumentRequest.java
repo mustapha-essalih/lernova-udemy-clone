@@ -1,5 +1,5 @@
 package dev.api.courses.requests;
- 
+
 public class CourseDocumentRequest {
      
     private String title;
@@ -14,6 +14,13 @@ public class CourseDocumentRequest {
     private float averageRating;
     private int numReviews;
     private int numStudents;
+    private boolean isFree;
+    private int videoDuration;
+
+
+
+
+
     public String getTitle() {
         return title;
     }
@@ -86,8 +93,19 @@ public class CourseDocumentRequest {
     public void setNumStudents(int numStudents) {
         this.numStudents = numStudents;
     }
-
-
+    public boolean isFree() {
+        return isFree;
+    }
+    public void setFree(boolean isFree) {
+        this.isFree = isFree;
+    }
+    public int getVideoDuration() {
+        return videoDuration;
+    }
+    public void setVideoDuration(int videoDuration) {
+        this.videoDuration = videoDuration;
+    }
+    
 
     
 }

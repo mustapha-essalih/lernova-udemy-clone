@@ -10,6 +10,8 @@ import org.springframework.data.elasticsearch.annotations.MultiField;
 import org.springframework.data.elasticsearch.annotations.Setting;
 import org.springframework.data.elasticsearch.core.suggest.Completion;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Setting(settingPath = "/elasticsearch/course-settings.json")
 @Document(indexName = "courses")
@@ -42,6 +44,7 @@ public class CourseDocument {
     })
     private String instructor;
 
+    @JsonIgnore
     @CompletionField
     private Completion suggest;
 
@@ -71,6 +74,11 @@ public class CourseDocument {
     private int numStudents;
 
 
+    @Field(type = FieldType.Boolean)
+    private boolean isFree;
+
+    @Field(type = FieldType.Integer) // or FieldType.Keyword if you want to store as "12h 30m"
+    private int videoDuration;
 
 
 
@@ -189,4 +197,23 @@ public class CourseDocument {
         this.numStudents = numStudents;
     }
 
+    public boolean isFree() {
+        return isFree;
+    }
+
+    public void setFree(boolean isFree) {
+        this.isFree = isFree;
+    }
+
+    public int getVideoDuration() {
+        return videoDuration;
+    }
+
+    public void setVideoDuration(int videoDuration) {
+        this.videoDuration = videoDuration;
+    }
+
+ 
+    
+    
 }
