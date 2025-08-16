@@ -238,6 +238,66 @@ public class CoursesControler {
         return completionSuggestion.getEntries();
 
     }
+@GetMapping("/instructors/search")
+public List<CourseDocument> searchInstructors(@RequestParam String query) {
+    
+    Query searchQuery = Query.of(q -> q
+        .bool(BoolQuery.of(b -> b
+            .should(Query.of(sq -> sq
+                .match(m -> m
+                    .field("instructor")
+                    .query(query)
+                    .boost(5.0f)
+                )))
+            .should(Query.of(sq -> sq
+                .matchPhrasePrefix(mp -> mp
+                    .field("instructor")
+                    .query(query)
+                    .boost(4.0f)
+                )))
+            .should(Query.of(sq -> sq
+                .match(m -> m
+                    .field("instructor.trigram")
+                    .query(query)
+                    .boost(3.0f)
+                )))
+            .should(Query.of(sq -> sq
+                .fuzzy(f -> f
+                    .field("instructor")
+                    .value(query)
+                    .fuzziness("AUTO")
+                    .prefixLength(1)
+                    .maxExpansions(50)
+                    .boost(2.0f)
+                )))
+            .should(Query.of(sq -> sq
+                .match(m -> m
+                    .field("instructor.trigram")
+                    .query(query)
+                    .fuzziness("AUTO")
+                    .boost(1.5f)
+                )))
+            .should(Query.of(sq -> sq
+                .wildcard(w -> w
+                    .field("instructor")
+                    .value(query.toLowerCase() + "*")
+                    .boost(1.0f)
+                )))
+            .minimumShouldMatch("1")
+        )));
+
+    NativeQuery nativeQuery = new NativeQueryBuilder()
+        .withQuery(searchQuery)
+        .withMaxResults(3)
+        .build();
+
+    SearchHits<CourseDocument> searchHits = elasticsearchOperations.search(
+        nativeQuery, CourseDocument.class, IndexCoordinates.of("courses"));
+
+    return searchHits.stream()
+        .map(hit -> hit.getContent())
+        .collect(Collectors.toList());
+}
 
     @GetMapping("/test")
     public List<String> searchGeneralSuggestions(String searchInput) {
@@ -464,203 +524,6 @@ public class CoursesControler {
         return response;
     }
 
-
-
-
-    // @GetMapping("/search")
-    // public List<CourseDocument> searchJavascriptProgramming() {
-    // String searchTerm = "programming";
-
-    // // Multi-match query (must)
-    // MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(m -> m
-    // .query(searchTerm)
-    // .fields("title^3", "title.trigram^2", "subtitle^2", "subtitle.trigram^1.5",
-    // "description^1", "description.trigram^0.8")
-    // .type(TextQueryType.BestFields)
-    // .minimumShouldMatch("75%")
-    // );
-
-    // // Price range filter (0 to 100)
-    // RangeQuery priceRangeQuery = RangeQuery.of(r -> r
-    // .number(n -> n
-    // .field("price")
-    // .gte(0.0)
-    // .lte(100.0)
-    // )
-    // );
-
-    // // Should clauses
-    // MatchPhraseQuery titlePhrase = MatchPhraseQuery.of(mp -> mp
-    // .field("title")
-    // .query(searchTerm)
-    // .boost(2.0f)
-    // );
-
-    // MatchPhraseQuery subtitlePhrase = MatchPhraseQuery.of(mp -> mp
-    // .field("subtitle")
-    // .query(searchTerm)
-    // .boost(1.5f)
-    // );
-
-    // MatchPhraseQuery descriptionPhrase = MatchPhraseQuery.of(mp -> mp
-    // .field("description")
-    // .query(searchTerm)
-    // .boost(1.5f)
-    // );
-
-    // // Complete bool query
-    // BoolQuery boolQuery = BoolQuery.of(b -> b
-    // .must(multiMatchQuery._toQuery())
-    // .filter(priceRangeQuery._toQuery())
-    // .should(titlePhrase._toQuery())
-    // .should(subtitlePhrase._toQuery())
-    // .should(descriptionPhrase._toQuery())
-    // );
-
-    // // Build final query with sorting and pagination
-    // NativeQuery searchQuery = NativeQuery.builder()
-    // .withQuery(boolQuery._toQuery())
-    // .withSort(sort -> sort.score(s -> s.order(SortOrder.Desc)))
-    // .withSort(sort -> sort.field(f ->
-    // f.field("averageRating").order(SortOrder.Desc)))
-    // .withPageable(PageRequest.of(0, 20)) // from: 0, size: 20
-    // .build();
-
-    // SearchHits<CourseDocument> searchHits =
-    // elasticsearchOperations.search(searchQuery, CourseDocument.class);
-    // return searchHits.stream()
-    // .map(SearchHit::getContent)
-    // .collect(Collectors.toList());
-    // }
-
-    // @GetMapping("/search")
-    // public Map<String, Object> searchJavascriptProgramming(
-    // @RequestParam(required = false) Double rating,
-    // @RequestParam(required = false) List<String> languages,
-    // @RequestParam(required = false) List<String> durations,
-    // @RequestParam(required = false) List<String> subcategories,
-    // @RequestParam(required = false) List<String> levels) {
-
-    // String searchTerm = "programming";
-
-    // MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(m -> m
-    // .query(searchTerm)
-    // .fields("title^3", "title.trigram^2", "subtitle^2", "subtitle.trigram^1.5",
-    // "description^1", "description.trigram^0.8")
-    // .type(TextQueryType.BestFields)
-    // .minimumShouldMatch("75%"));
-
-    // List<Query> filters = new ArrayList<>();
-
-    // if (rating != null) {
-    // filters.add(RangeQuery.of(r -> r
-    // .number(n -> n
-    // .field("averageRating")
-    // .gte(rating))) // Greater than or equal to rating
-    // ._toQuery());
-    // }
-
-    // if (languages != null && !languages.isEmpty()) {
-    // filters.add(TermsQuery.of(t -> t
-    // .field("language.keyword")
-    // .terms(ts ->
-    // ts.value(languages.stream().map(FieldValue::of).toList())))._toQuery());
-    // }
-
-    // if (durations != null && !durations.isEmpty()) {
-
-    // List<Query> durationQueries = new ArrayList<>();
-    // for (String duration : durations) {
-    // String[] parts = duration.split("-");
-    // double gte = Double.parseDouble(parts[0]);
-    // double lte = Double.parseDouble(parts[1]);
-    // durationQueries.add(RangeQuery.of(r -> r
-    // .number(n -> n
-    // .field("videoDuration")
-    // .gte(gte)
-    // .lte(lte)
-    // )
-    // )._toQuery());
-    // }
-    // filters.add(BoolQuery.of(b -> b.should(durationQueries))._toQuery());
-    // }
-
-    // if (subcategories != null && !subcategories.isEmpty()) {
-    // filters.add(TermsQuery.of(t -> t
-    // .field("subCategory.keyword")
-    // .terms(ts ->
-    // ts.value(subcategories.stream().map(FieldValue::of).toList())))._toQuery());
-    // }
-
-    // if (levels != null && !levels.isEmpty()) {
-    // filters.add(TermsQuery.of(t -> t
-    // .field("level.keyword")
-    // .terms(ts ->
-    // ts.value(levels.stream().map(FieldValue::of).toList())))._toQuery());
-    // }
-
-    // MatchPhraseQuery titlePhrase = MatchPhraseQuery.of(mp -> mp
-    // .field("title")
-    // .query(searchTerm)
-    // .boost(2.0f));
-
-    // MatchPhraseQuery subtitlePhrase = MatchPhraseQuery.of(mp -> mp
-    // .field("subtitle")
-    // .query(searchTerm)
-    // .boost(1.5f));
-
-    // MatchPhraseQuery descriptionPhrase = MatchPhraseQuery.of(mp -> mp
-    // .field("description")
-    // .query(searchTerm)
-    // .boost(1.5f));
-
-    // BoolQuery boolQuery = BoolQuery.of(b -> b
-    // .must(multiMatchQuery._toQuery())
-    // .filter(filters)
-    // .should(titlePhrase._toQuery())
-    // .should(subtitlePhrase._toQuery())
-    // .should(descriptionPhrase._toQuery()));
-
-    // NativeQuery searchQuery = NativeQuery.builder()
-    // .withQuery(boolQuery._toQuery())
-    // .withSort(sort -> sort.score(s -> s.order(SortOrder.Desc)))
-    // .withSort(sort -> sort.field(f ->
-    // f.field("averageRating").order(SortOrder.Desc)))
-    // .withPageable(PageRequest.of(0, 20))
-    // .build();
-
-    // SearchHits<CourseDocument> searchHits =
-    // elasticsearchOperations.search(searchQuery, CourseDocument.class);
-    // List<CourseDocument> courses =
-    // searchHits.stream().map(SearchHit::getContent).toList();
-
-    // Map<String, Long> languageCount = courses.stream()
-    // .collect(Collectors.groupingBy(CourseDocument::getLanguage,
-    // Collectors.counting()));
-    // Map<String, Long> subCategoryCount = courses.stream()
-    // .collect(Collectors.groupingBy(CourseDocument::getSubCategory,
-    // Collectors.counting()));
-    // Map<String, Long> levelCount = courses.stream()
-    // .collect(Collectors.groupingBy(CourseDocument::getLevel,
-    // Collectors.counting()));
-
-    // Map<String, Long> durationCount =
-    // courses.stream().collect(Collectors.groupingBy(c -> {
-    // double d = c.getVideoDuration();
-    // if (d < 1) return "0-1";
-    // else if (d < 3) return "1-3";
-    // else return "3+";
-    // }, Collectors.counting()));
-
-    // Map<String, Object> response = new HashMap<>();
-    // response.put("courses", courses);
-    // response.put("languagesCount", languageCount);
-    // response.put("subCategoriesCount", subCategoryCount);
-    // response.put("levelsCount", levelCount);
-    // response.put("durationsCount", durationCount);
-
-    // return response;
-    // }
 
     @GetMapping("/all")
     public Iterable<CourseDocument> getMethodName() {

@@ -77,7 +77,7 @@ public class CourseDocument {
     @Field(type = FieldType.Boolean)
     private boolean isFree;
 
-    @Field(type = FieldType.Integer) // or FieldType.Keyword if you want to store as "12h 30m"
+    @Field(type = FieldType.Integer) 
     private int videoDuration;
 
 
