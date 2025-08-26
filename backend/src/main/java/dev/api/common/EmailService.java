@@ -1,27 +1,18 @@
 package dev.api.common;
 
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
-
 import dev.api.instructors.model.Instructors;
 import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.students.model.Students;
 import dev.api.students.repository.StudentsRepository;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.AllArgsConstructor;
 
 @Service
 public class EmailService {
