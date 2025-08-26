@@ -1,40 +1,28 @@
 package dev.api.authentication;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import dev.api.authentication.model.BaseEntity;
 import dev.api.authentication.model.Roles;
 import dev.api.authentication.request.LoginRequest;
 import dev.api.authentication.request.RegistrationRequest;
-import dev.api.authentication.responses.UserResponse;
 import dev.api.common.EmailService;
 import dev.api.common.GeneraleService;
-import dev.api.instructors.InstructorsService;
 import dev.api.instructors.model.Instructors;
 import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.security.JwtService;
 import dev.api.students.model.Students;
 import dev.api.students.repository.StudentsRepository;
-import io.micrometer.common.lang.Nullable;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 
 @Service
 public class AuthenticationService {
