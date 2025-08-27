@@ -1,0 +1,16 @@
+{
+  "analysis": {
+    "analyzer": {
+      "trigram": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": ["lowercase", "shingle"]
+      },
+      "reverse": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": ["lowercase", "reverse"]
+      }
+    }
+  }
+}
