@@ -51,7 +51,7 @@ public class SearchService {
             List<String> subcategories, List<String> levels, List<String> priceTypes, int page, int size) {
 
         if (q == null || q.trim().length() < 2) {
-            return new ApiResponse<Map<String,Object>>(true, null, null, 200);
+            return new ApiResponse<Map<String,Object>>(true, null, null);
         }
 
         MultiMatchQuery multiMatchQuery = buildMultiMatchQuery(q);
@@ -78,7 +78,7 @@ public class SearchService {
     public ApiResponse<List<String>> getSuggestions(String prefix) {
        
         if (prefix == null || prefix.trim().length() < 2) {
-            return new ApiResponse<List<String>>(true, null, null, 200);
+            return new ApiResponse<List<String>>(true, null, null);
         }
 
         String wildcardValue = "*" + prefix.toLowerCase() + "*";
@@ -112,12 +112,12 @@ public class SearchService {
                 .map(hit -> hit.getContent().getPhrase())
                 .collect(Collectors.toList());
     
-        return new ApiResponse<>(true, null, response, 200);
+        return new ApiResponse<>(true, null, response);
     }
 
     public ApiResponse<List<CourseDocument>> suggestInstructors(String prefix) {
         if (prefix == null || prefix.trim().length() < 2) {
-            return new ApiResponse<List<CourseDocument>>(true, null, null, 200);
+            return new ApiResponse<List<CourseDocument>>(true, null, null);
         }
 
         Query searchQuery = Query.of(q -> q
@@ -170,14 +170,14 @@ public class SearchService {
                 .map(hit -> hit.getContent())
                 .collect(Collectors.toList());
 
-        return new ApiResponse<List<CourseDocument>>(true, null, response, 200);
+        return new ApiResponse<List<CourseDocument>>(true, null, response);
 
     }
 
     public ApiResponse<Object> suggestCourseTitles(String prefix) {
 
         if (prefix == null || prefix.trim().length() < 2) {
-            return new ApiResponse<Object>(true, null, null, 200);
+            return new ApiResponse<Object>(true, null, null);
         }
         SuggestFuzziness fuzziness = SuggestFuzziness.of(f -> f
                 .fuzziness("AUTO")
@@ -202,7 +202,7 @@ public class SearchService {
         Suggest suggest = articles.getSuggest();
 
         Suggestion<? extends Entry<? extends Option>> completionSuggestion = suggest.getSuggestion("course_suggest");
-        return new ApiResponse<Object>(true, null, completionSuggestion.getEntries(), 200);
+        return new ApiResponse<Object>(true, null, completionSuggestion.getEntries());
     }
 
     private MultiMatchQuery buildMultiMatchQuery(String q) {
@@ -354,7 +354,7 @@ public class SearchService {
         response.put("filterCounts", filterCounts);
 
 
-        return new ApiResponse<>(true, null, response, 200);
+        return new ApiResponse<>(true, null, response);
     }
 
 }
