@@ -158,7 +158,7 @@ public class AuthenticationService {
             student.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
             studentsRepository.save(student);
-            String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
+            String url = urlOfRequest + generateVerificationToken;
 
             emailService.sendEmailVerification(student.getUsername(), student.getEmail(), url);
         } else {
@@ -167,7 +167,7 @@ public class AuthenticationService {
 
             instructorsRepository.save(instructor); 
 
-            String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
+            String url = urlOfRequest + generateVerificationToken;
 
             emailService.sendEmailVerification(instructor.getUsername(), instructor.getEmail(), url);
         }

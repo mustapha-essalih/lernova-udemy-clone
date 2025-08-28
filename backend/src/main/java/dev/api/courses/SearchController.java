@@ -49,6 +49,7 @@ public class SearchController {
 
     @GetMapping("/titles/suggest")
     public ResponseEntity<ApiResponse<Object>> suggestCourseTitles(@RequestParam String prefix) {
+        System.out.println(prefix);
         return ResponseEntity.ok(searchService.suggestCourseTitles(prefix));
     }
 

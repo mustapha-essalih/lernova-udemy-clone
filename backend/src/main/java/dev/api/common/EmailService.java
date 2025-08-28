@@ -90,7 +90,6 @@ public class EmailService {
             if (student.isEnabled())
                 return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
             
-
             LocalDateTime expiresAt = student.getVerificationCodeExpiresAt();
 
             if(expiresAt.isBefore(LocalDateTime.now())) {
