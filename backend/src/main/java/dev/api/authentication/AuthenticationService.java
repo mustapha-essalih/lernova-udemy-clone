@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -147,7 +149,7 @@ public class AuthenticationService {
             return ResponseEntity.ok("Please, check your email for to complete your registration");
         }
 
-        return ResponseEntity.badRequest().body("user not found");
+        return ResponseEntity.status(HttpStatus.SC_GONE).body("user not found");
     }
 
     private void sendEmailVerification(Students student, Instructors instructor) {
