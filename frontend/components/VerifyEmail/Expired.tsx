@@ -7,6 +7,7 @@ import { RiErrorWarningLine } from "react-icons/ri";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { CircularProgress } from "@mui/material";
 
 const formSchema = z.object({
   email: z.email("Invalid email address"),
@@ -14,7 +15,7 @@ const formSchema = z.object({
 
 export function Expired() {
   const [open, setOpen] = useState(false);
-  const { register, handleSubmit, setError, formState:{errors} } = useForm<{email: string}>({
+  const { register, handleSubmit, setError, formState:{errors, isSubmitting} } = useForm<{email: string}>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -23,7 +24,7 @@ export function Expired() {
 
   const onSubmit = async ({email}: {email: string}) => {
     try {
-      await axios.post(`http://localhost:8081/api/v1/auth/resend-verification-email`, {email});
+      await axios.post(`http://localhost:8081/api/v1/auth/resend-email-verification`, {email});
     } catch (e) {
       setError("email", {message: "Failed to send email. Please try again later."});
       console.log(e);
@@ -38,7 +39,7 @@ export function Expired() {
       <h1 className="text-3xl font-medium">Email Verification</h1>
       <p>Your verification link has expired. Please request a new one.</p>
       {
-        !open && <button type="button" onClick={() => setOpen(true)} className="bg-orange-500 py-2 px-8 rounded-full text-white font-medium text-lg cursor-pointer">Request new open</button>
+        !open && <button type="button" onClick={() => setOpen(true)} className="bg-orange-500 py-2 px-8 rounded-full text-white font-medium text-lg cursor-pointer">Request new one</button>
       }
       {
         open && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center gap-4 w-full max-w-[400px]">
@@ -46,10 +47,11 @@ export function Expired() {
           {
             errors.email && <p className="text-red-500 text-sm mr-auto">{errors.email.message}</p>
           }
-          {
-            errors.root && <p className="text-red-500 text-sm mr-auto">{errors.root.message}</p>
-          }
-          <button type="submit" className="bg-orange-500 py-2 px-8 w-fit rounded-full text-white font-medium text-lg cursor-pointer">Send</button>
+          <button type="submit" disabled={isSubmitting} className="bg-orange-500 w-[105px] h-[44px] rounded-full text-white font-medium text-lg cursor-pointer flex items-center justify-center">
+            {
+              isSubmitting ? <CircularProgress size={24} thickness={4.9} color="inherit"  /> : "Send"
+            }
+          </button>
         </form>
       }
     </StatusContainer>
