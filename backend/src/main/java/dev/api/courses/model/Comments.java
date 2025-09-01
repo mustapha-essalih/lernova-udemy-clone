@@ -54,14 +54,8 @@ public class Comments {
         this.comment = comment;
     }
 
-    public Courses getCourse() {
-        return course;
-    }
-
-    public void setCourse(Courses course) {
-        this.course = course;
-    }
-
+   
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -76,6 +70,14 @@ public class Comments {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Courses getCourse() {
+        return course;
+    }
+
+    public void setCourse(Courses course) {
+        this.course = course;
     }
 
 

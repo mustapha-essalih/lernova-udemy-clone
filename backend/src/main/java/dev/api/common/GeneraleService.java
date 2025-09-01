@@ -29,24 +29,24 @@ public class GeneraleService {
     public UserResponse getUserInfos(String username, String jwt){
         Students student = studentsRepository.findByUsername(username).orElse(null);
         if(student != null) 
-            return new UserResponse(student.getId(), student.getFirst_name(), student.getLast_name(), student.getEmail(), student.getUsername() , jwt);
+            return new UserResponse(student.getId(), student.getFirst_name(), student.getLast_name(), student.getEmail(), student.getUsername() , student.getRole().name() , jwt);
 
         Instructors instructor = instructorsRepository.findByUsername(username).orElse(null);
         
         if (instructor != null)
-            return new UserResponse(instructor.getId(), instructor.getFirst_name(), instructor.getLast_name(), instructor.getEmail(), instructor.getUsername() , jwt);
+            return new UserResponse(instructor.getId(), instructor.getFirst_name(), instructor.getLast_name(), instructor.getEmail(), instructor.getUsername() , instructor.getRole().name(), jwt);
 
         Admin admin = adminRepository.findByUsername(username).orElse(null);
 
 
         if (admin != null)
-            return new UserResponse(admin.getId(),  admin.getUsername() , jwt);
+            return new UserResponse(admin.getId(),  admin.getUsername() , admin.getRole().name(), jwt);
 
         Managers manager = managersRepository.findByUsername(username).orElse(null);
 
 
         if (manager != null)
-            return new UserResponse(manager.getId(),  manager.getUsername(), jwt);
+            return new UserResponse(manager.getId(),  manager.getUsername() , manager.getRole().name() , jwt);
 
         return null;
     }

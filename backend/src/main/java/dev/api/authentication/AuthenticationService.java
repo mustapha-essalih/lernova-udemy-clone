@@ -1,13 +1,17 @@
 package dev.api.authentication;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +27,7 @@ import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.security.JwtService;
 import dev.api.students.model.Students;
 import dev.api.students.repository.StudentsRepository;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class AuthenticationService {
@@ -35,12 +40,14 @@ public class AuthenticationService {
     private EmailService emailService;
     private GeneraleService generaleService;
 
-
-
     @Value("${site.base.url.http}")
     private String urlOfRequest;
- 
-    public AuthenticationService(StudentsRepository studentsRepository, InstructorsRepository instructorsRepository,GeneraleService generaleService,
+
+    @Value("${token.expirationms}")
+    private long jwtExpiration;
+
+    public AuthenticationService(StudentsRepository studentsRepository, InstructorsRepository instructorsRepository,
+            GeneraleService generaleService,
             PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService,
             EmailService emailService) {
         this.studentsRepository = studentsRepository;
@@ -48,13 +55,13 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
-        this.emailService = emailService; 
-       this.generaleService = generaleService;
+        this.emailService = emailService;
+        this.generaleService = generaleService;
     }
 
     public ResponseEntity<?> registerNewStudent(RegistrationRequest request) {
 
-        Map<String,String> user = new HashMap<>();
+        Map<String, String> user = new HashMap<>();
         if (studentsRepository.findByUsername(request.getUsername()).isPresent() ||
                 studentsRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("Username or email already exists");
@@ -79,8 +86,8 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<?> registerNewInstructor(RegistrationRequest request) {
-        
-        Map<String,String> user = new HashMap<>();
+
+        Map<String, String> user = new HashMap<>();
 
         if (instructorsRepository.findByUsername(request.getUsername()).isPresent() ||
                 instructorsRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -105,26 +112,32 @@ public class AuthenticationService {
         return ResponseEntity.status(201).body(user);
     }
 
-    public ResponseEntity<?> login(LoginRequest request) {
+    public ResponseEntity<?> login(LoginRequest request, HttpServletResponse response) {
 
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken
                 .unauthenticated(request.getUsername(), request.getPassword());
-        String jwt = null;
 
         try {
             Authentication authenticatedUser = this.authenticationManager.authenticate(authenticationRequest);
-            jwt = jwtService.generateToken(authenticatedUser.getName());
+            String jwt = jwtService.generateToken(authenticatedUser.getName());
 
-        } catch (Exception e) {
+            ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+                    .httpOnly(true) // HttpOnly cookies prevent JavaScript from accessing or modifying them, letting
+                                    // only the browser automatically send them to the server.
+                    // .secure(true)
+                    .path("/")
+                    .maxAge(Duration.ofMinutes(jwtExpiration))
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            return ResponseEntity.ok()
+                    .body(generaleService.getUserInfos(authenticationRequest.getName(), jwt));
+
+        } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid username or password");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An unexpected error occurred during login.");
         }
-
-        if (jwt == null) {
-            return ResponseEntity.status(500).body("Failed to generate JWT token");
-        }
-        
-        return ResponseEntity.ok()
-                .body(generaleService.getUserInfos(authenticationRequest.getName() , jwt));
     }
 
     public ResponseEntity<String> resendEmailVerification(String email) {
@@ -165,7 +178,7 @@ public class AuthenticationService {
             instructor.setVerificationCode(generateVerificationToken);
             instructor.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
-            instructorsRepository.save(instructor); 
+            instructorsRepository.save(instructor);
 
             String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
 
@@ -173,5 +186,5 @@ public class AuthenticationService {
         }
 
     }
- 
+
 }

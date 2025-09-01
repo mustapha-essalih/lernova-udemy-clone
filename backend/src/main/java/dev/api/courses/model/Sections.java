@@ -53,19 +53,7 @@ public class Sections {
         this.sectionId = sectionId;
     }
 
-
-
-    public Courses getCourse() {
-        return course;
-    }
-
-
-
-    public void setCourse(Courses course) {
-        this.course = course;
-    }
-
-
+ 
 
     public String getTitle() {
         return title;
@@ -99,6 +87,18 @@ public class Sections {
 
     public void setSectionResources(Set<SectionResources> sectionResources) {
         this.sectionResources = sectionResources;
+    }
+
+
+
+    public Courses getCourse() {
+        return course;
+    }
+
+
+
+    public void setCourse(Courses course) {
+        this.course = course;
     }
 
 

@@ -34,3 +34,4 @@ build/
 .env
 script.sh
 data.json
+temp-code.md

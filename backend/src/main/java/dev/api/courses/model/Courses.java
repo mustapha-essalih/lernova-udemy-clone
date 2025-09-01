@@ -39,7 +39,7 @@ public class Courses {
     @Column(nullable = false, unique = true)
     private String title;
 
-    // private String subTitle;
+    private String subTitle;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
@@ -50,25 +50,27 @@ public class Courses {
     @Column(nullable = false)
     private Boolean isFree;
 
+    
+    @Column(length = 10)
+    private String couponCode;
+    
+    @Column(precision = 2, scale = 1)
+    private BigDecimal rating;
+    
+    @Column(nullable = false)
+    private Integer courseDurationMinutes;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 25)
     private Languages language;
-
-    @Column(length = 10)
-    private String couponCode;
-
-    @Column(precision = 2, scale = 1)
-    private BigDecimal rating;
-
-    @Column(nullable = false)
-    private Integer courseDurationMinutes;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
 
-
-    // level
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Level level;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -233,6 +235,22 @@ public class Courses {
 
     public void setMainCategories(Set<MainCategories> mainCategories) {
         this.mainCategories = mainCategories;
+    }
+
+    public String getSubTitle() {
+        return subTitle;
+    }
+
+    public void setSubTitle(String subTitle) {
+        this.subTitle = subTitle;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
     }
 
     

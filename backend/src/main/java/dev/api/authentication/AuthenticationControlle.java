@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.api.authentication.request.LoginRequest;
 import dev.api.authentication.request.RegistrationRequest;
 import dev.api.common.EmailService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +36,8 @@ public class AuthenticationControlle {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        return authenticationService.login(request);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        return authenticationService.login(request, response);
     }
 
     @GetMapping("/email-verification")
@@ -55,4 +56,6 @@ public class AuthenticationControlle {
         return null;
     }
     
+    
+
 }

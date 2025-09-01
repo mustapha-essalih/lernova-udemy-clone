@@ -39,6 +39,8 @@ public class Instructors extends BaseEntity {
     @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Courses> courses = new HashSet<>(); // Use Set to prevent duplicates
 
+ 
+
     public Instructors() {
     }
 
@@ -91,14 +93,8 @@ public class Instructors extends BaseEntity {
         this.email = email;
     }
 
-    public Set<Courses> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(Set<Courses> courses) {
-        this.courses = courses;
-    }
-
+    
+    
     public String getVerificationCode() {
         return verificationCode;
     }
@@ -113,7 +109,15 @@ public class Instructors extends BaseEntity {
 
     public void setVerificationCodeExpiresAt(LocalDateTime verificationCodeExpiresAt) {
         this.verificationCodeExpiresAt = verificationCodeExpiresAt;
+    }
+
+    public Set<Courses> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(Set<Courses> courses) {
+        this.courses = courses;
     } 
-    
+   
 
 }
