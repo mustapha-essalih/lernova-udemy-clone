@@ -1,5 +1,6 @@
 package dev.api.authentication;
 
+import dev.api.authentication.request.EmailRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -57,6 +58,6 @@ public class AuthenticationControlle {
         return null;
     }
     
-    
+
 
 }
