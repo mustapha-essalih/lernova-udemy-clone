@@ -3,6 +3,7 @@ package dev.api.authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.api.authentication.request.EmailRequest;
 import dev.api.authentication.request.LoginRequest;
 import dev.api.authentication.request.RegistrationRequest;
 import dev.api.common.EmailService;
@@ -46,13 +47,13 @@ public class AuthenticationControlle {
     }
 
     @PostMapping("/resend-email-verification")
-    ResponseEntity<String> resendEmailVerification(@RequestBody String email) {
-        return authenticationService.resendEmailVerification(email);
+    ResponseEntity<String> resendEmailVerification(@RequestBody EmailRequest email) {
+        return authenticationService.resendEmailVerification(email.getEmail());
     }
 
     
     @PostMapping("/forget-password")  
-    public ResponseEntity<String> forgetPassword(@RequestBody String email){
+    public ResponseEntity<String> forgetPassword(@RequestBody EmailRequest email){
         return null;
     }
     

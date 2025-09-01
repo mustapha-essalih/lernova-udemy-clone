@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -160,7 +161,7 @@ public class AuthenticationService {
             return ResponseEntity.ok("Please, check your email for to complete your registration");
         }
 
-        return ResponseEntity.badRequest().body("user not found");
+        return ResponseEntity.status(HttpStatus.SC_GONE).body("user not found");
     }
 
     private void sendEmailVerification(Students student, Instructors instructor) {
@@ -171,7 +172,7 @@ public class AuthenticationService {
             student.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
             studentsRepository.save(student);
-            String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
+            String url = urlOfRequest + generateVerificationToken;
 
             emailService.sendEmailVerification(student.getUsername(), student.getEmail(), url);
         } else {
@@ -180,7 +181,7 @@ public class AuthenticationService {
 
             instructorsRepository.save(instructor);
 
-            String url = urlOfRequest + "/api/v1/auth/email-verification?token=" + generateVerificationToken;
+            String url = urlOfRequest + generateVerificationToken;
 
             emailService.sendEmailVerification(instructor.getUsername(), instructor.getEmail(), url);
         }
