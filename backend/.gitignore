@@ -32,5 +32,4 @@ build/
 .vscode/
 
 .env
-script.sh
-data.json
+temp.md
