@@ -55,7 +55,7 @@ export default function SignupForm({
 	const onSubmit = async (data: SignupFormData) => {
 		try {
 			const response = await axios.post(
-				`http://localhost:8081/api/v1/auth/${role}`,
+				`http://localhost:8080/api/v1/auth/${role}`,
 				data
 			);
 
