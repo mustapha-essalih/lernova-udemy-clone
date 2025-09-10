@@ -17,13 +17,10 @@ import jakarta.persistence.OneToMany;
 @Entity
 public class Sections {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sectionId;
 
-    
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Courses course;
@@ -31,77 +28,50 @@ public class Sections {
     @Column(nullable = false)
     private String title;
 
-    
-    
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Videos> videos = new HashSet<>();
 
-    
-    
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SectionResources> sectionResources = new HashSet<>();
-
-
+    private Set<Resources> resources = new HashSet<>();
 
     public Integer getSectionId() {
         return sectionId;
     }
 
-
-
     public void setSectionId(Integer sectionId) {
         this.sectionId = sectionId;
     }
-
-
-
-    public Courses getCourse() {
-        return course;
-    }
-
-
-
-    public void setCourse(Courses course) {
-        this.course = course;
-    }
-
-
 
     public String getTitle() {
         return title;
     }
 
-
-
     public void setTitle(String title) {
         this.title = title;
     }
-
-
 
     public Set<Videos> getVideos() {
         return videos;
     }
 
-
-
     public void setVideos(Set<Videos> videos) {
         this.videos = videos;
     }
 
-
-
-    public Set<SectionResources> getSectionResources() {
-        return sectionResources;
+    public Courses getCourse() {
+        return course;
     }
 
-
-
-    public void setSectionResources(Set<SectionResources> sectionResources) {
-        this.sectionResources = sectionResources;
+    public void setCourse(Courses course) {
+        this.course = course;
     }
 
+    public Set<Resources> getResources() {
+        return resources;
+    }
 
-    
+    public void setResources(Set<Resources> resources) {
+        this.resources = resources;
+    }
 
 }

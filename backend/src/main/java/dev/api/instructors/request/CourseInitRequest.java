@@ -1,0 +1,105 @@
+package dev.api.instructors.request;
+
+import java.util.List;
+
+import dev.api.courses.model.Languages;
+import dev.api.courses.model.Level;
+import dev.api.courses.model.Status;
+import lombok.Getter;
+import lombok.Setter;
+
+
+public class CourseInitRequest {
+
+    private String title;
+    private String subTitle;
+    private String description;
+    private double price;
+    private boolean isFree;
+    private int courseDurationMinutes;
+    private Languages language;
+    private Status status;
+    private Level level;
+    private String category;
+    private List<SectionsInitRequest> sections;
+    
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    public String getSubTitle() {
+        return subTitle;
+    }
+    public void setSubTitle(String subTitle) {
+        this.subTitle = subTitle;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public double getPrice() {
+        return price;
+    }
+    public void setPrice(double price) {
+        this.price = price;
+    }
+    public boolean isFree() {
+        return isFree;
+    }
+    public void setFree(boolean isFree) {
+        this.isFree = isFree;
+    }
+    public int getCourseDurationMinutes() {
+        return courseDurationMinutes;
+    }
+    public void setCourseDurationMinutes(int courseDurationMinutes) {
+        this.courseDurationMinutes = courseDurationMinutes;
+    }
+    public Languages getLanguage() {
+        return language;
+    }
+    public void setLanguage(Languages language) {
+        this.language = language;
+    }
+    public Status getStatus() {
+        return status;
+    }
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+    public Level getLevel() {
+        return level;
+    }
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+    public String getCategory() {
+        return category;
+    }
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    public List<SectionsInitRequest> getSections() {
+        return sections;
+    }
+    public void setSections(List<SectionsInitRequest> sections) {
+        this.sections = sections;
+    }
+    @Override
+    public String toString() {
+        return "CourseInitRequest [title=" + title + ", subTitle=" + subTitle + ", description=" + description
+                + ", price=" + price + ", isFree=" + isFree + ", courseDurationMinutes=" + courseDurationMinutes
+                + ", language=" + language + ", status=" + status + ", level=" + level + ", category=" + category
+                + ", sections=" + sections + "]";
+    }
+
+
+    
+    
+
+
+}

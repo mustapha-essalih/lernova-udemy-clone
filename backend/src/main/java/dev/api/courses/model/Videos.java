@@ -16,8 +16,6 @@ public class Videos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer videoId;
 
-    
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_id", nullable = false)
     private Sections section;
@@ -32,7 +30,6 @@ public class Videos {
 
     private Boolean isPreview;
 
-   
 
     public Sections getSection() {
         return section;

@@ -89,6 +89,9 @@ public class CoursesControler {
 
     
 
+
+    
+
     private String generateSuggestions(String title, String subtitle, String category, String subcategory,
             String instructor) throws JsonMappingException, JsonProcessingException {
 

@@ -1,6 +1,5 @@
 package dev.api.courses.model;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,8 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 
 @Entity
 public class MainCategories {
@@ -29,13 +26,14 @@ public class MainCategories {
     @ManyToMany(mappedBy = "mainCategories")
     private Set<Courses> courses = new HashSet<>();
 
+    
     @OneToMany(mappedBy = "mainCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Subcategories> subcategories = new HashSet<>();
 
     public Integer getMainCategorieId() {
         return mainCategorieId;
     }
-
+    
     public void setMainCategorieId(Integer mainCategorieId) {
         this.mainCategorieId = mainCategorieId;
     }
@@ -47,7 +45,16 @@ public class MainCategories {
     public void setName(String name) {
         this.name = name;
     }
-
+    
+    
+    public Set<Subcategories> getSubcategories() {
+        return subcategories;
+    }
+    
+    public void setSubcategories(Set<Subcategories> subcategories) {
+        this.subcategories = subcategories;
+    }
+    
     public Set<Courses> getCourses() {
         return courses;
     }
@@ -55,13 +62,4 @@ public class MainCategories {
     public void setCourses(Set<Courses> courses) {
         this.courses = courses;
     }
-
-    public Set<Subcategories> getSubcategories() {
-        return subcategories;
-    }
-
-    public void setSubcategories(Set<Subcategories> subcategories) {
-        this.subcategories = subcategories;
-    }
-
 }

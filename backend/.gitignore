@@ -32,4 +32,10 @@ build/
 .vscode/
 
 .env
+<<<<<<< HEAD
 temp.md
+=======
+script.sh
+data.json
+temp-code.md
+>>>>>>> 5eaaca451597aa333571eec7f2182ed233300c79

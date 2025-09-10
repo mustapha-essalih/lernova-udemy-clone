@@ -8,28 +8,30 @@ public class UserResponse  {
     private String email;
     private String username;
     private String jwt;
-    
+    private String role ;
     
     public UserResponse() {
     }
 
     
     
-    public UserResponse(Integer id, String firstName, String lastName, String email, String username, String jwt) {
+    public UserResponse(Integer id, String firstName, String lastName, String email, String username, String role , String jwt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.username = username;
         this.jwt = jwt;
+        this.role = role;
     }
 
 
 
-    public UserResponse(Integer id, String username , String jwt) {
+    public UserResponse(Integer id, String username , String role , String jwt) {
         this.id = id;
         this.username = username;
         this.jwt = jwt;
+        this.role = role;
     }
 
     public Integer getId() {
@@ -71,11 +73,29 @@ public class UserResponse  {
         this.jwt = jwt;
     }
 
+
+
+    public String getRole() {
+        return role;
+    }
+
+
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+
+
     @Override
     public String toString() {
         return "[id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-                + ", username=" + username + ", jwt=" + jwt + "]";
+                + ", username=" + username + ", jwt=" + jwt + ", role=" + role + "]";
     }
+
+    
+    
+
 
     
 }
