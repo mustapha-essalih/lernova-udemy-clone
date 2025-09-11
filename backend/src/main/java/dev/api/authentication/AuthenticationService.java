@@ -23,6 +23,8 @@ import dev.api.authentication.request.LoginRequest;
 import dev.api.authentication.request.RegistrationRequest;
 import dev.api.common.EmailService;
 import dev.api.common.GeneraleService;
+import dev.api.courses.model.redis.CacheStudent;
+import dev.api.courses.repository.redis.CacheStudentRepository;
 import dev.api.instructors.model.Instructors;
 import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.security.JwtService;
@@ -40,6 +42,7 @@ public class AuthenticationService {
     private JwtService jwtService;
     private EmailService emailService;
     private GeneraleService generaleService;
+
 
     @Value("${site.base.url.http}")
     private String urlOfRequest;
@@ -170,10 +173,8 @@ public class AuthenticationService {
         if (student != null) {
             student.setVerificationCode(generateVerificationToken);
             student.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
-
             studentsRepository.save(student);
             String url = urlOfRequest + generateVerificationToken;
-
             emailService.sendEmailVerification(student.getUsername(), student.getEmail(), url);
         } else {
             instructor.setVerificationCode(generateVerificationToken);

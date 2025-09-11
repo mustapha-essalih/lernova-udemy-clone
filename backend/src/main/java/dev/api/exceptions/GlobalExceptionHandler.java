@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
             e.getMessage() != null ? e.getMessage() : "Resource Not Found",
             null
         );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        return ResponseEntity.status(HttpStatus.GONE).body(response);
     }
 
     @ExceptionHandler(value = DisabledException.class)

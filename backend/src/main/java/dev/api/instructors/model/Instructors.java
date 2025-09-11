@@ -1,5 +1,6 @@
 package dev.api.instructors.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +30,10 @@ public class Instructors extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String bio;
+
+
+    // @Column(precision = 12, scale = 2)
+    // private BigDecimal totalRevenue;
 
     private String verificationCode;
 
@@ -117,7 +122,6 @@ public class Instructors extends BaseEntity {
 
     public void setCourses(Set<Courses> courses) {
         this.courses = courses;
-    } 
-   
-
+    }
+ 
 }

@@ -6,6 +6,7 @@ import dev.api.authentication.model.BaseEntity;
 import dev.api.authentication.model.Roles;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Students extends BaseEntity {
@@ -26,8 +27,7 @@ public class Students extends BaseEntity {
     
     @Column(name = "verification_expiration")
     private LocalDateTime verificationCodeExpiresAt;
-     
-
+      
     public Students() {
     }
 
@@ -37,6 +37,7 @@ public class Students extends BaseEntity {
         this.last_name = last_name;
         this.profile_picture_url = profile_picture_url;
         this.email = email;
+ 
     }
 
     public String getFirst_name() {
@@ -87,5 +88,6 @@ public class Students extends BaseEntity {
     public void setVerificationCodeExpiresAt(LocalDateTime verificationCodeExpiresAt) {
         this.verificationCodeExpiresAt = verificationCodeExpiresAt;
     }
+
     
 }

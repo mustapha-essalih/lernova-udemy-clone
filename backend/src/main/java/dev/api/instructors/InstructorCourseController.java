@@ -4,27 +4,22 @@ import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.api.authentication.model.BaseEntity;
 import dev.api.common.ApiResponse;
-import dev.api.courses.model.Courses;
 import dev.api.courses.model.redis.CacheCourse;
 import dev.api.courses.model.redis.CacheSections;
-import dev.api.courses.repository.redis.CacheCourseRepository;
-import dev.api.courses.repository.redis.CacheSectionsRepository;
+import dev.api.courses.model.redis.CacheVideos;
 import dev.api.courses.responses.CacheCourseResponse;
-import dev.api.instructors.model.Instructors;
 import dev.api.instructors.request.CourseInitRequest;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 
  
 
@@ -35,26 +30,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class InstructorCourseController {
     
     private InstructorCourseService instructorCourseService;
-    private CacheSectionsRepository cacheSectionsRepository;
-
-    private CacheCourseRepository cacheCourseRepository;
-
+    
     
     @PostMapping("/init")
-    public ResponseEntity<CacheCourseResponse> init(@RequestBody CourseInitRequest request) {
+    public ResponseEntity<CacheCourseResponse> init(@RequestBody CourseInitRequest request , Principal principal) {
     
-        CacheCourseResponse course = instructorCourseService.init(request);
+        CacheCourseResponse course = instructorCourseService.init(request , "principal.getName()");
         ApiResponse<CacheCourseResponse> response = new ApiResponse<>(true, "Course created successfully", course);
         return ResponseEntity.status(HttpStatus.CREATED).body(course);
     }
 
+    @GetMapping
+    public Iterable<CacheVideos> getMethodName() {
+        return instructorCourseService.get();
+    }
     
- 
-   @GetMapping
-   public Iterable<CacheCourse> test(){
-        return cacheCourseRepository.findAll();
-
-   }
-
+     
 
 }

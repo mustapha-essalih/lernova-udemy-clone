@@ -1,33 +1,41 @@
 package dev.api.courses.model.redis;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import dev.api.courses.model.Courses;
 import dev.api.courses.model.Languages;
 import dev.api.courses.model.Level;
 import dev.api.courses.model.Status;
-import dev.api.instructors.request.SectionsInitRequest;
 
 @RedisHash("courses")
 public class CacheCourse {
 
     @Id
     private String id;
+    
     private String title;
     private String subTitle;
     private String description;
-    private double price;
-    private boolean isFree;
-    private int courseDurationMinutes;
+    private BigDecimal price;
+    private Boolean isFree;
+    private String couponCode;
+    private Double rating;
+    private Integer courseDurationMinutes;
     private Languages language;
     private Status status;
     private Level level;
-    private String category;
-    private List<String> sectionIds = new ArrayList<>(); // Stores only section IDs
-
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String instructorName;
+    private Set<String> category;
+    private List<String> sectionIds = new ArrayList<>();  
 
     public CacheCourse() {
     }
@@ -38,6 +46,23 @@ public class CacheCourse {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public List<String> getSectionIds() {
+        return sectionIds;
+    }
+
+    public void setSectionIds(List<String> sectionIds) {
+        this.sectionIds = sectionIds;
+    }
+
+
+    public String getInstructorName() {
+        return instructorName;
+    }
+
+    public void setInstructorName(String instructorName) {
+        this.instructorName = instructorName;
     }
 
     public String getTitle() {
@@ -64,27 +89,43 @@ public class CacheCourse {
         this.description = description;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public boolean isFree() {
+    public Boolean getIsFree() {
         return isFree;
     }
 
-    public void setFree(boolean isFree) {
+    public void setIsFree(Boolean isFree) {
         this.isFree = isFree;
     }
 
-    public int getCourseDurationMinutes() {
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public Integer getCourseDurationMinutes() {
         return courseDurationMinutes;
     }
 
-    public void setCourseDurationMinutes(int courseDurationMinutes) {
+    public void setCourseDurationMinutes(Integer courseDurationMinutes) {
         this.courseDurationMinutes = courseDurationMinutes;
     }
 
@@ -112,21 +153,31 @@ public class CacheCourse {
         this.level = level;
     }
 
-    public String getCategory() {
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Set<String> getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Set<String> category) {
         this.category = category;
     }
 
-    public List<String> getSectionIds() {
-        return sectionIds;
-    }
-
-    public void setSectionIds(List<String> sectionIds) {
-        this.sectionIds = sectionIds;
-    }
-
-
+   
+    
+    
 }

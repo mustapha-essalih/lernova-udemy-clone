@@ -1,5 +1,6 @@
 package dev.api.instructors.request;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import dev.api.courses.model.Languages;
@@ -14,8 +15,8 @@ public class CourseInitRequest {
     private String title;
     private String subTitle;
     private String description;
-    private double price;
-    private boolean isFree;
+    private BigDecimal price;
+    private Boolean isFree;
     private int courseDurationMinutes;
     private Languages language;
     private Status status;
@@ -41,16 +42,16 @@ public class CourseInitRequest {
     public void setDescription(String description) {
         this.description = description;
     }
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
-    public boolean isFree() {
+    public Boolean isFree() {
         return isFree;
     }
-    public void setFree(boolean isFree) {
+    public void setFree(Boolean isFree) {
         this.isFree = isFree;
     }
     public int getCourseDurationMinutes() {

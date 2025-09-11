@@ -1,25 +1,12 @@
 package dev.api.courses;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.suggest.Completion;
-import org.springframework.data.elasticsearch.core.suggest.response.Suggest;
-import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion;
-import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion.Entry;
-import org.springframework.data.elasticsearch.core.suggest.response.Suggest.Suggestion.Entry.Option;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,35 +17,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.ScoreSort;
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhraseQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
-import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
-import co.elastic.clients.elasticsearch._types.query_dsl.WildcardQuery;
-import co.elastic.clients.elasticsearch.core.search.CompletionSuggester;
-import co.elastic.clients.elasticsearch.core.search.FieldSuggester;
-import co.elastic.clients.elasticsearch.core.search.SuggestFuzziness;
-import co.elastic.clients.elasticsearch.core.search.Suggester;
 import dev.api.courses.model.CourseDocument;
 import dev.api.courses.model.SuggestionDocument;
 import dev.api.courses.repository.CourseDocumentRepository;
 import dev.api.courses.repository.SuggestionDocumentRepository;
 import dev.api.courses.requests.CourseDocumentRequest;
-import org.springframework.web.bind.annotation.GetMapping;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RequestMapping("/api/v1/courses")
 @RestController
