@@ -5,8 +5,8 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.DisabledException;
+// import org.springframework.security.access.AccessDeniedException;
+// import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -22,14 +22,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseEntity<ApiResponse<Object>> runTimeException(RuntimeException e) {
-        if (e instanceof AccessDeniedException) {
-            ApiResponse<Object> response = new ApiResponse<>(
-                false, 
-                "You don't have permission to access this resource", 
-                null
-            );
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
+        // if (e instanceof AccessDeniedException) {
+        //     ApiResponse<Object> response = new ApiResponse<>(
+        //         false, 
+        //         "You don't have permission to access this resource", 
+        //         null
+        //     );
+        //     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        // }
         
         System.out.println("RuntimeException");
         System.out.println(e.getLocalizedMessage());
@@ -53,6 +53,18 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Object>> businessException(BusinessException e){
+
+        ApiResponse<Object> response = new ApiResponse<>(
+            false,
+            e.getMessage(),
+            null
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(value = InternalServerError.class)
@@ -101,15 +113,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.GONE).body(response);
     }
 
-    @ExceptionHandler(value = DisabledException.class)
-    public ResponseEntity<ApiResponse<Object>> disabledUser(DisabledException e) {
-        ApiResponse<Object> response = new ApiResponse<>(
-            false,
-            "Should activate your email, check your email",
-            null
-        );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
+    // @ExceptionHandler(value = DisabledException.class)
+    // public ResponseEntity<ApiResponse<Object>> disabledUser(DisabledException e) {
+    //     ApiResponse<Object> response = new ApiResponse<>(
+    //         false,
+    //         "Should activate your email, check your email",
+    //         null
+    //     );
+    //     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    // }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidArgument(MethodArgumentNotValidException ex) {

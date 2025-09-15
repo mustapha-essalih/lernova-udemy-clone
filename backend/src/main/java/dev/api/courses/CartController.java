@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,36 +39,30 @@ public class CartController {
 
     @PostMapping("/items") // dont forget validation
     public ResponseEntity<ApiResponse<String>> addToCart(@Valid @RequestBody AddToCartRequest request, Principal principal) {
-        this.cartService.addToCart(request , "messalih");
+        this.cartService.addToCart(request , principal.getName());
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(new ApiResponse<String>(true, "course added to cart", null));
     }
    
 
-    @DeleteMapping("/items/{courseId}")
-    public ResponseEntity<ApiResponse<String>> removeItemFromCart(@PathVariable String courseId , Principal principal) {
-        this.cartService.removeItemFromCart(courseId, "messalih" );
-        
-        return ResponseEntity.status(HttpStatus.SC_NO_CONTENT).body(new ApiResponse<String>(true, "course delted from cart", null));
-    }
-
-    
-    // get cart: return courses meta data in cart
     @GetMapping
     public ResponseEntity<ApiResponse<CartCoursesResponse>> getCart(Principal principal){
 
-        CartCoursesResponse cart = this.cartService.getCart("messalih");
-        if(cart.getTotalItems() == 0){
-            return ResponseEntity.ok().body(new ApiResponse<CartCoursesResponse>(true, "cart is empty", null));
-        }
+        CartCoursesResponse cart = this.cartService.getCart(principal.getName());
 
         return ResponseEntity.ok().body(new ApiResponse<CartCoursesResponse>(true, null, cart));
     }
 
- 
-
+    
+    @DeleteMapping("/items/{courseId}")
+    public ResponseEntity<ApiResponse<String>> removeItemFromCart(@PathVariable String courseId , Principal principal) {
+        this.cartService.removeItemFromCart(courseId, principal.getName() );
+        
+        return ResponseEntity.status(HttpStatus.SC_NO_CONTENT).body(new ApiResponse<String>(true, "course delted from cart", null));
+    }
+    
     @DeleteMapping
     public ResponseEntity<ApiResponse<String>> clearCart(Principal principal) {
-        this.cartService.clearCart("messalih");
+        this.cartService.clearCart(principal.getName());
                 return ResponseEntity.status(HttpStatus.SC_NO_CONTENT).body(new ApiResponse<String>(true, "Cart cleared successfully.", null));
     }
 

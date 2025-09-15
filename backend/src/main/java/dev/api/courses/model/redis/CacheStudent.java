@@ -1,13 +1,10 @@
 package dev.api.courses.model.redis;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Reference;
 import org.springframework.data.redis.core.RedisHash;
 
- import dev.api.students.model.Students;
 
-
-@RedisHash("student")
+@RedisHash(value = "student", timeToLive = 50)
 public class CacheStudent{
     
     @Id

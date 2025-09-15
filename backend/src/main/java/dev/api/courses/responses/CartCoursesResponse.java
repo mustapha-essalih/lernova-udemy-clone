@@ -9,9 +9,6 @@ public class CartCoursesResponse {
     private int totalItems;
     private Iterable<CacheCourse> items;
     
-    
-    
-
     public CartCoursesResponse(BigDecimal totalAmount, int totalItems, Iterable<CacheCourse> items) {
         this.totalAmount = totalAmount;
         this.totalItems = totalItems;
@@ -35,8 +32,5 @@ public class CartCoursesResponse {
     public void setItems(Iterable<CacheCourse> items) {
         this.items = items;
     }
-
-
-    
     
 }

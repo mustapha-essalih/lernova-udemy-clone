@@ -11,8 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.redis.core.RedisHash;
 
-// set expiration
-@RedisHash("cart")
+@RedisHash(value = "cart", timeToLive = 604800) // 7 days in seconds
 public class CacheCart {
     
     @Id

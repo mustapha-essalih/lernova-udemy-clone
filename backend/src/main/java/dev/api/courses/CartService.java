@@ -1,14 +1,12 @@
 package dev.api.courses;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
 import dev.api.courses.model.Courses;
-import dev.api.courses.model.MainCategories;
-import dev.api.courses.model.Subcategories;
+import dev.api.courses.model.Status;
 import dev.api.courses.model.redis.CacheCart;
 import dev.api.courses.model.redis.CacheCourse;
 import dev.api.courses.model.redis.CacheStudent;
@@ -18,14 +16,11 @@ import dev.api.courses.repository.redis.CacheCourseRepository;
 import dev.api.courses.repository.redis.CacheStudentRepository;
 import dev.api.courses.requests.AddToCartRequest;
 import dev.api.courses.responses.CartCoursesResponse;
-import dev.api.courses.responses.CartResponse;
+import dev.api.exceptions.BusinessException;
 import dev.api.exceptions.ResourceNotFoundException;
-import dev.api.students.model.Students;
 import dev.api.students.repository.StudentsRepository;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
@@ -33,21 +28,87 @@ import org.springframework.stereotype.Service;
 public class CartService {
 
     private CacheStudentRepository cachestudentRepository;
-    private CacheCartRepository cartRepository;
+    private CacheCartRepository cacheCartRepository;
     private CoursesRepository coursesRepository;
     private CacheCourseRepository cacheCourseRepository;
     private StudentsRepository studentsRepository;
 
-    // test add same course to cart
-    //
     public void addToCart(AddToCartRequest request, String username) {
-
         Courses course = coursesRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + request.getCourseId()));
 
-        CacheStudent cacheStudent = cachestudentRepository.findById("student_" + username).orElse(null);
-        CacheCourse cacheCourse = new CacheCourse();
+        // Check if course is available for purchase
+        if (!course.getStatus().equals(Status.PUBLISHED)) {
+            throw new BusinessException("Course is not available for purchase");
+        }
 
+        CacheStudent cacheStudent = cachestudentRepository.findById("student_" + username).orElse(null);
+        CacheCourse cacheCourse = mapToCacheCourse(course);
+
+        // if student not in cache, create new one with new cart
+        if (cacheStudent == null) {
+            cacheStudent = createNewStudentWithCart(username, cacheCourse, course.getPrice());
+        } else {
+            // Add to existing cart
+            addToExistingCart(cacheStudent, cacheCourse, course);
+        }
+    }
+
+    private CacheStudent createNewStudentWithCart(String username, CacheCourse cacheCourse, BigDecimal coursePrice) {
+        CacheStudent cacheStudent = new CacheStudent();
+        cacheStudent.setStudentId("student_" + username);
+        
+        String cartId = "cart_" + UUID.randomUUID().toString();
+        CacheCart cacheCart = new CacheCart();
+        cacheCart.setCartId(cartId);
+        cacheCart.setTotalAmount(coursePrice);
+        cacheCart.getItemIds().add(cacheCourse.getId());
+        
+        cacheStudent.setCartId(cartId);
+        
+        cachestudentRepository.save(cacheStudent);
+        cacheCartRepository.save(cacheCart);
+        cacheCourseRepository.save(cacheCourse);
+
+        return cacheStudent;
+    }
+
+    private void addToExistingCart(CacheStudent cacheStudent, CacheCourse cacheCourse, Courses course) {
+        Optional<CacheCart> cart = cacheCartRepository.findById(cacheStudent.getCartId());
+        
+        if (cart.isEmpty()) {
+            // cart was deleted/expired, create new one
+            String newCartId = "cart_" + UUID.randomUUID().toString();
+            CacheCart newCart = new CacheCart();
+            newCart.setCartId(newCartId);
+            newCart.setTotalAmount(course.getPrice());
+            newCart.getItemIds().add(cacheCourse.getId());
+            
+            cacheStudent.setCartId(newCartId);
+            cachestudentRepository.save(cacheStudent);
+            cacheCartRepository.save(newCart);
+            cacheCourseRepository.save(cacheCourse);
+            return;
+        }
+        
+        CacheCart cacheCart = cart.get();
+        
+        // if course already in cart
+        if (cacheCart.getItemIds().contains(cacheCourse.getId())) {
+            throw new BusinessException("Course already in cart");
+        }
+        
+        // Add course to existing cart
+        cacheCart.setTotalAmount(cacheCart.getTotalAmount().add(course.getPrice()));
+        cacheCart.getItemIds().add(cacheCourse.getId());
+        
+        cacheCartRepository.save(cacheCart);
+        cacheCourseRepository.save(cacheCourse);
+    }
+
+
+    private CacheCourse mapToCacheCourse(Courses course) {
+        CacheCourse cacheCourse = new CacheCourse();
         cacheCourse.setId("course_" + course.getCourseId());
         cacheCourse.setTitle(course.getTitle());
         cacheCourse.setSubTitle(course.getSubTitle());
@@ -58,88 +119,105 @@ public class CartService {
         cacheCourse.setLanguage(course.getLanguage());
         cacheCourse.setStatus(course.getStatus());
         cacheCourse.setLevel(course.getLevel());
-
-        // for (MainCategories mainCategorie : course.getMainCategories()) {
-        // if(mainCategorie.getName() != null){
-        // cacheCourse.getCategory().add(mainCategorie.getName());
+        
+        // Set categories - uncomment when ready
+        // if (course.getMainCategories() != null) {
+        //     Set<String> categories = new HashSet<>();
+        //     for (MainCategories mainCategory : course.getMainCategories()) {
+        //         if (mainCategory.getName() != null) {
+        //             categories.add(mainCategory.getName());
+        //         }
+        //         if (mainCategory.getSubcategories() != null) {
+        //             for (Subcategories subCategory : mainCategory.getSubcategories()) {
+        //                 if (subCategory.getName() != null) {
+        //                     categories.add(subCategory.getName());
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     cacheCourse.setCategory(categories);
         // }
-        // for (Subcategories subcategorie : mainCategorie.getSubcategories()) {
-        // cacheCourse.getCategory().add(subcategorie.getName());
-        // }
-        // }
-
-        if (cacheStudent == null) {
-            cacheStudent = new CacheStudent();
-            cacheStudent.setStudentId("student_" + username);
-            String cartId = "cart_" + UUID.randomUUID().toString();
-            CacheCart cacheCart = new CacheCart();
-            cacheCart.setCartId(cartId);
-            cacheCart.setTotalAmount(course.getPrice());
-            cacheStudent.setCartId(cartId);
-            cachestudentRepository.save(cacheStudent);
-            cacheCart.getItemIds().add("course_" + course.getCourseId());
-            cartRepository.save(cacheCart);
-            cacheCourseRepository.save(cacheCourse);
-        } else {
-
-            CacheCart cacheCart = cartRepository.findById(cacheStudent.getCartId()).get();
-            if (!cacheCart.getItemIds().contains(cacheCourse.getId())) {
-                cacheCart.setTotalAmount(cacheCart.getTotalAmount().add(course.getPrice()));
-                cacheCart.getItemIds().add("course_" + course.getCourseId());
-                cartRepository.save(cacheCart);
-                cacheCourseRepository.save(cacheCourse);
-            }
-
-        }
-
+        
+        return cacheCourse;
     }
 
     public CartCoursesResponse getCart(String username) {
-
         CacheStudent cacheStudent = cachestudentRepository.findById("student_" + username).orElse(null);
-        if (cacheStudent == null) {
-            return new CartCoursesResponse(null, 0, null);
+       
+        // if student not found in cache 
+        if (cacheStudent == null ) {
+            throw new ResourceNotFoundException("student not found"); 
         }
 
-        CacheCart cacheCart = cartRepository.findById(cacheStudent.getCartId()).orElse(null);
-        if (cacheCart == null) {
-            return new CartCoursesResponse(null, 0, null);
+        // Cart expired or deleted 
+        if (cacheStudent.getCartId() == null) {
+            throw new BusinessException("cart expired or deleted");
         }
 
+        CacheCart cacheCart = cacheCartRepository.findById(cacheStudent.getCartId()).get();
         Iterable<CacheCourse> cacheCourses = cacheCourseRepository.findAllById(cacheCart.getItemIds());
-
+        
         return new CartCoursesResponse(cacheCart.getTotalAmount(), cacheCart.getItemIds().size(), cacheCourses);
     }
 
-    public void removeItemFromCart(String courseId, String username) {
-
-        CacheCourse course = cacheCourseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
-
+     public void removeItemFromCart(String courseId, String username) {
+        Optional<CacheCourse> cacheCourse = cacheCourseRepository.findById(courseId);
+        if (cacheCourse.isEmpty()) {
+            throw new ResourceNotFoundException("Course not found in cart with id: " + courseId);
+        }
+        
         CacheStudent cacheStudent = cachestudentRepository.findById("student_" + username).orElse(null);
-        if (cacheStudent != null) {
-            CacheCart cacheCart = cartRepository.findById(cacheStudent.getCartId()).orElse(null);
-            if (cacheCart != null) {
-                cacheCart.getItemIds().remove(courseId);
-                cacheCart.setTotalAmount(cacheCart.getTotalAmount().subtract(course.getPrice()));
-                cartRepository.save(cacheCart);
-                cacheCourseRepository.delete(course);
-            }
+        
+        if (cacheStudent == null ) {
+            throw new ResourceNotFoundException("student not found"); 
         }
 
+        if (cacheStudent.getCartId() == null) {
+            throw new BusinessException("cart expired or deleted");
+        }
+
+        CacheCart cacheCart = cacheCartRepository.findById(cacheStudent.getCartId()).get();
+      
+        // Remove item and update total
+        cacheCart.getItemIds().remove(courseId);
+        cacheCart.setTotalAmount(cacheCart.getTotalAmount().subtract(cacheCourse.get().getPrice()));
+        
+        // If cart becomes empty, delete it
+        if (cacheCart.getItemIds().isEmpty()) {
+            clearCart(username);
+        } else {
+            cacheCartRepository.save(cacheCart);
+        }
+        
+        // Delete the course from cache
+        cacheCourseRepository.delete(cacheCourse.get());
     }
 
     public void clearCart(String username) {
         CacheStudent cacheStudent = cachestudentRepository.findById("student_" + username).orElse(null);
         if (cacheStudent != null) {
-            CacheCart cacheCart = cartRepository.findById(cacheStudent.getCartId()).orElse(null);
-            if (cacheCart != null) {
-                cartRepository.delete(cacheCart);
-                cacheStudent.setCartId(null);
-                cachestudentRepository.save(cacheStudent);
+            if(cacheStudent.getCartId() == null){
+                throw new BusinessException("cart expired or deleted");
             }
+
+            Optional<CacheCart> cacheCart = cacheCartRepository.findById(cacheStudent.getCartId());
+            if (cacheCart.isPresent()) {
+                CacheCart cart = cacheCart.get();
+                
+                // Delete all courses in cart
+                cacheCourseRepository.deleteAllById(cart.getItemIds());
+                
+                // Delete cart
+                cacheCartRepository.delete(cart);
+            }
+            
+            // Clear cart reference from student
+            cacheStudent.setCartId(null);
+            cachestudentRepository.save(cacheStudent);
         }
-    
+        else{
+            throw new ResourceNotFoundException("student not found");
+        }
     }
 
 }

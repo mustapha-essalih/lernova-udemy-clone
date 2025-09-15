@@ -41,7 +41,7 @@ Before diving into specific roles, here are the foundational features that will 
     * Integration with a secure payment provider (e.g., Stripe, PayPal) for paid courses.
     * Handling transactions, refunds, and payouts to instructors.
 * **Search & Discovery:**
-    * Robust search functionality for courses (by title, instructor, category, keywords).
+    * Robust search functionality for courses (by title, instructor, category, keywords).using elatic serch
     * Filtering and sorting options (price, rating, popularity).
     * Course categories and subcategories.
 * **Notifications:**
