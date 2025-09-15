@@ -1,11 +1,19 @@
 package dev.api.students.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import dev.api.authentication.model.BaseEntity;
 import dev.api.authentication.model.Roles;
+import dev.api.courses.model.Courses;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -27,7 +35,18 @@ public class Students extends BaseEntity {
     
     @Column(name = "verification_expiration")
     private LocalDateTime verificationCodeExpiresAt;
-      
+
+    
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
+
+
+
+
+    @ManyToMany(mappedBy = "students")
+    private Set<Courses> courses = new HashSet<>();
+   
+   
     public Students() {
     }
 
@@ -88,6 +107,24 @@ public class Students extends BaseEntity {
     public void setVerificationCodeExpiresAt(LocalDateTime verificationCodeExpiresAt) {
         this.verificationCodeExpiresAt = verificationCodeExpiresAt;
     }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public Set<Courses> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(Set<Courses> courses) {
+        this.courses = courses;
+    }
+
+        
 
     
 }

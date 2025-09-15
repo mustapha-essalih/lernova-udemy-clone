@@ -113,6 +113,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.GONE).body(response);
     }
 
+
+    @ExceptionHandler(value = BadRequestException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBadRequestException(BadRequestException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
+            false,
+            e.getMessage(),
+            null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     // @ExceptionHandler(value = DisabledException.class)
     // public ResponseEntity<ApiResponse<Object>> disabledUser(DisabledException e) {
     //     ApiResponse<Object> response = new ApiResponse<>(
