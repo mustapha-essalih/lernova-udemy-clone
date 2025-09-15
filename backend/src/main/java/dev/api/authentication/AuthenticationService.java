@@ -174,7 +174,7 @@ public class AuthenticationService {
             student.setVerificationCode(generateVerificationToken);
             student.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
             studentsRepository.save(student);
-            String url = urlOfRequest + generateVerificationToken;
+            String url = urlOfRequest + "/verify?token=" + generateVerificationToken;
             emailService.sendEmailVerification(student.getUsername(), student.getEmail(), url);
         } else {
             instructor.setVerificationCode(generateVerificationToken);

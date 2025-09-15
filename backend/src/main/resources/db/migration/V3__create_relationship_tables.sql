@@ -9,3 +9,9 @@ CREATE TABLE IF NOT EXISTS course_main_categories (
     main_category_id INTEGER NOT NULL REFERENCES main_categories(main_categorie_id) ON DELETE CASCADE,
     PRIMARY KEY (course_id, main_category_id) 
 );
+ 
+
+CREATE TABLE IF NOT EXISTS order_courses (
+    order_id INTEGER NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+    course_id INTEGER NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE
+);

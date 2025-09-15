@@ -2,13 +2,16 @@ package dev.api.courses.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import dev.api.instructors.model.Instructors;
+import dev.api.students.model.Order;
 import dev.api.students.model.Students;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -94,6 +97,10 @@ public class Courses {
         inverseJoinColumns = @JoinColumn(name = "main_category_id") 
     )
     private Set<MainCategories> mainCategories = new HashSet<>(); 
+
+
+    @ManyToMany(mappedBy = "courses")
+    private Set<Order> orders = new HashSet<>();
 
 
     public Courses() {
@@ -251,6 +258,15 @@ public class Courses {
     public void setLevel(Level level) {
         this.level = level;
     }
+
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
+    }
+
 
     
 }
