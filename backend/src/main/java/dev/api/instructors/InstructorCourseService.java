@@ -163,15 +163,7 @@ public class InstructorCourseService {
  
         return cacheCourseResponse;
     }
-
-
-
-    public Iterable<CacheVideos> get() {
-        return cacheVideosRepository.findAll();
-    }
-
-
-
+ 
     
 
 }
