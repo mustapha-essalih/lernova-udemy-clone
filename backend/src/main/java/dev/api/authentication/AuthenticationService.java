@@ -140,6 +140,10 @@ public class AuthenticationService {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid username or password");
         } catch (Exception e) {
+            if(e.getMessage().equals("User is disabled"))
+            {
+                return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("verify you email");
+            }
             return ResponseEntity.status(500).body("An unexpected error occurred during login.");
         }
     }
