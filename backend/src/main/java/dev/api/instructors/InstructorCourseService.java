@@ -1,20 +1,12 @@
 package dev.api.instructors;
  
-import dev.api.courses.repository.redis.CacheVideosRepository;
-import dev.api.courses.responses.CacheCourseResponse;
-import dev.api.courses.responses.FilesResponses;
-import dev.api.courses.responses.SectionsResponse;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import dev.api.courses.model.Courses;
-import dev.api.courses.model.MainCategories;
-import dev.api.courses.model.Subcategories;
+import dev.api.courses.model.Course;
 import dev.api.courses.model.redis.CacheCourse;
 import dev.api.courses.model.redis.CacheResources;
 import dev.api.courses.model.redis.CacheSections;
@@ -23,6 +15,10 @@ import dev.api.courses.repository.CoursesRepository;
 import dev.api.courses.repository.redis.CacheCourseRepository;
 import dev.api.courses.repository.redis.CacheResourcesRepository;
 import dev.api.courses.repository.redis.CacheSectionsRepository;
+import dev.api.courses.repository.redis.CacheVideosRepository;
+import dev.api.courses.responses.CacheCourseResponse;
+import dev.api.courses.responses.FilesResponses;
+import dev.api.courses.responses.SectionsResponse;
 import dev.api.instructors.model.Instructors;
 import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.instructors.request.CourseInitRequest;
@@ -62,7 +58,7 @@ public class InstructorCourseService {
         cacheCourse.setStatus(request.getStatus());
         cacheCourse.setLevel(request.getLevel());
 
-        Courses courses = new Courses();
+        Course courses = new Course();
 
         courses.setTitle(request.getTitle());
         courses.setSubTitle(request.getSubTitle());

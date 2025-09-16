@@ -11,9 +11,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
+@Table(name="mainCategories")
 @Entity
-public class MainCategories {
+public class MainCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,11 +26,11 @@ public class MainCategories {
     private String name;
 
     @ManyToMany(mappedBy = "mainCategories")
-    private Set<Courses> courses = new HashSet<>();
+    private Set<Course> courses = new HashSet<>();
 
     
     @OneToMany(mappedBy = "mainCategory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Subcategories> subcategories = new HashSet<>();
+    private Set<Subcategory> subcategories = new HashSet<>();
 
     public Integer getMainCategorieId() {
         return mainCategorieId;
@@ -47,19 +49,19 @@ public class MainCategories {
     }
     
     
-    public Set<Subcategories> getSubcategories() {
+    public Set<Subcategory> getSubcategories() {
         return subcategories;
     }
     
-    public void setSubcategories(Set<Subcategories> subcategories) {
+    public void setSubcategories(Set<Subcategory> subcategories) {
         this.subcategories = subcategories;
     }
     
-    public Set<Courses> getCourses() {
+    public Set<Course> getCourses() {
         return courses;
     }
 
-    public void setCourses(Set<Courses> courses) {
+    public void setCourses(Set<Course> courses) {
         this.courses = courses;
     }
 }

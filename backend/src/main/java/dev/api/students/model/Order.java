@@ -1,12 +1,10 @@
 package dev.api.students.model;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import dev.api.courses.model.Courses;
+import dev.api.courses.model.Course;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +30,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
-    private Students student;
+    private Student student;
 
     @ManyToMany
     @JoinTable(
@@ -40,7 +38,7 @@ public class Order {
         joinColumns = @JoinColumn(name = "order_id"),
         inverseJoinColumns = @JoinColumn(name = "course_id")
     )
-    private Set<Courses> courses = new HashSet<>();
+    private Set<Course> courses = new HashSet<>();
 
     public Order() {
     }
@@ -69,19 +67,19 @@ public class Order {
         this.paid = paid;
     }
 
-    public Students getStudent() {
+    public Student getStudent() {
         return student;
     }
 
-    public void setStudent(Students student) {
+    public void setStudent(Student student) {
         this.student = student;
     }
 
-    public Set<Courses> getCourses() {
+    public Set<Course> getCourses() {
         return courses;
     }
 
-    public void setCourses(Set<Courses> courses) {
+    public void setCourses(Set<Course> courses) {
         this.courses = courses;
     }
 

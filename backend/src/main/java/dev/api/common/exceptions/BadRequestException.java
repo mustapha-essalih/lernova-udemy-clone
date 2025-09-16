@@ -1,4 +1,4 @@
-package dev.api.exceptions;
+package dev.api.common.exceptions;
 
 public class BadRequestException extends RuntimeException{
     

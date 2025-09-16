@@ -1,4 +1,4 @@
-package dev.api.authentication.model;
+package dev.api.common.enums;
 
 public enum Roles {
     INSTRUCTOR, STUDENT, MANAGER, ADMIN

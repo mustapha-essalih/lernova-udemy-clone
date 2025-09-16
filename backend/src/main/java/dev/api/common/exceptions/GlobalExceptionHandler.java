@@ -1,4 +1,4 @@
-package dev.api.exceptions;
+package dev.api.common.exceptions;
 
 import java.util.HashMap;
 import java.util.Map;

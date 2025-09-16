@@ -9,10 +9,9 @@ import java.util.Set;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import dev.api.courses.model.Courses;
-import dev.api.courses.model.Languages;
-import dev.api.courses.model.Level;
-import dev.api.courses.model.Status;
+import dev.api.common.enums.Languages;
+import dev.api.common.enums.Level;
+import dev.api.common.enums.Status;
 
 @RedisHash("courses")
 public class CacheCourse {

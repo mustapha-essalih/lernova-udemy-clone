@@ -1,4 +1,4 @@
-package dev.api.courses.model;
+package dev.api.common.enums;
 
 public enum Status {
 	DRAFT,

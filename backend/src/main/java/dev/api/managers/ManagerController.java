@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.api.common.ApiResponse;
-import dev.api.courses.model.Courses;
+import dev.api.courses.model.Course;
 import lombok.AllArgsConstructor;
 
 
@@ -26,7 +26,7 @@ public class ManagerController {
 
 
     @GetMapping("/courses/pending")
-    public List<Courses> getPendingCourses() {
+    public List<Course> getPendingCourses() {
     
         return managerService.getPendingCourses();
     }

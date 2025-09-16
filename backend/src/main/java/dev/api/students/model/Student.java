@@ -7,17 +7,21 @@ import java.util.List;
 import java.util.Set;
 
 import dev.api.authentication.model.BaseEntity;
-import dev.api.authentication.model.Roles;
-import dev.api.courses.model.Courses;
+import dev.api.common.enums.Roles;
+import dev.api.courses.model.Course;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
 
+
+@NoArgsConstructor
+@Table(name="students")
 @Entity
-public class Students extends BaseEntity {
+public class Student extends BaseEntity {
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -44,13 +48,10 @@ public class Students extends BaseEntity {
 
 
     @ManyToMany(mappedBy = "students")
-    private Set<Courses> courses = new HashSet<>();
-   
-   
-    public Students() {
-    }
+    private Set<Course> courses = new HashSet<>();
+    
 
-    public Students(String username, String email,String password_hash, String first_name, String last_name, String profile_picture_url, Roles role) {
+    public Student(String username, String email,String password_hash, String first_name, String last_name, String profile_picture_url, Roles role) {
         super(username , password_hash , role , false);
         this.first_name = first_name;
         this.last_name = last_name;
@@ -116,11 +117,11 @@ public class Students extends BaseEntity {
         this.orders = orders;
     }
 
-    public Set<Courses> getCourses() {
+    public Set<Course> getCourses() {
         return courses;
     }
 
-    public void setCourses(Set<Courses> courses) {
+    public void setCourses(Set<Course> courses) {
         this.courses = courses;
     }
 

@@ -1,12 +1,15 @@
 package dev.api.courses;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
-import dev.api.courses.model.Courses;
-import dev.api.courses.model.Status;
+import org.springframework.stereotype.Service;
+
+import dev.api.common.enums.Status;
+import dev.api.common.exceptions.BusinessException;
+import dev.api.common.exceptions.ResourceNotFoundException;
+import dev.api.courses.model.Course;
 import dev.api.courses.model.redis.CacheCart;
 import dev.api.courses.model.redis.CacheCourse;
 import dev.api.courses.model.redis.CacheStudent;
@@ -16,12 +19,8 @@ import dev.api.courses.repository.redis.CacheCourseRepository;
 import dev.api.courses.repository.redis.CacheStudentRepository;
 import dev.api.courses.requests.AddToCartRequest;
 import dev.api.courses.responses.CartCoursesResponse;
-import dev.api.exceptions.BusinessException;
-import dev.api.exceptions.ResourceNotFoundException;
 import dev.api.students.repository.StudentsRepository;
 import lombok.AllArgsConstructor;
-
-import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
@@ -34,7 +33,7 @@ public class CartService {
     private StudentsRepository studentsRepository;
 
     public void addToCart(AddToCartRequest request, String username) {
-        Courses course = coursesRepository.findById(request.getCourseId())
+        Course course = coursesRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + request.getCourseId()));
 
         // Check if course is available for purchase
@@ -47,14 +46,14 @@ public class CartService {
 
         // if student not in cache, create new one with new cart
         if (cacheStudent == null) {
-            cacheStudent = createNewStudentWithCart(username, cacheCourse, course.getPrice());
+            createNewStudentWithCart(username, cacheCourse, course.getPrice());
         } else {
             // Add to existing cart
             addToExistingCart(cacheStudent, cacheCourse, course);
         }
     }
 
-    private CacheStudent createNewStudentWithCart(String username, CacheCourse cacheCourse, BigDecimal coursePrice) {
+    private void createNewStudentWithCart(String username, CacheCourse cacheCourse, BigDecimal coursePrice) {
         CacheStudent cacheStudent = new CacheStudent();
         cacheStudent.setStudentId("student_" + username);
         
@@ -70,10 +69,9 @@ public class CartService {
         cacheCartRepository.save(cacheCart);
         cacheCourseRepository.save(cacheCourse);
 
-        return cacheStudent;
     }
 
-    private void addToExistingCart(CacheStudent cacheStudent, CacheCourse cacheCourse, Courses course) {
+    private void addToExistingCart(CacheStudent cacheStudent, CacheCourse cacheCourse, Course course) {
         Optional<CacheCart> cart = cacheCartRepository.findById(cacheStudent.getCartId());
         
         if (cart.isEmpty()) {
@@ -107,7 +105,7 @@ public class CartService {
     }
 
 
-    private CacheCourse mapToCacheCourse(Courses course) {
+    private CacheCourse mapToCacheCourse(Course course) {
         CacheCourse cacheCourse = new CacheCourse();
         cacheCourse.setId("course_" + course.getCourseId());
         cacheCourse.setTitle(course.getTitle());

@@ -3,11 +3,9 @@ package dev.api.instructors.request;
 import java.math.BigDecimal;
 import java.util.List;
 
-import dev.api.courses.model.Languages;
-import dev.api.courses.model.Level;
-import dev.api.courses.model.Status;
-import lombok.Getter;
-import lombok.Setter;
+import dev.api.common.enums.Languages;
+import dev.api.common.enums.Level;
+import dev.api.common.enums.Status;
 
 
 public class CourseInitRequest {
