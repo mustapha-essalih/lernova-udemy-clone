@@ -26,7 +26,7 @@ public class AdminControler {
     
     private AdminService adminService;
 
-    // --- Manager Management ---
+
     @GetMapping("/managers")
     public ResponseEntity<?> getAllManagers() {
         return ResponseEntity.ok(adminService.getAllManagers());
@@ -47,7 +47,7 @@ public class AdminControler {
     @DeleteMapping("/managers/{managerId}")
     public ResponseEntity<ApiResponse<String>> deleteManager(@PathVariable Integer managerId) {
         adminService.deleteManager(managerId);
-        return ResponseEntity.status(HttpStatus.SC_NO_CONTENT).body(new ApiResponse<String>(true, null, null));
+        return ResponseEntity.status(HttpStatus.SC_NO_CONTENT).body(new ApiResponse<>(true, null, null));
     }
 
     

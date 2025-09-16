@@ -1,5 +1,7 @@
 package dev.api.admin;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +20,9 @@ public class AdminService {
     private ManagersRepository managersRepository;
     private PasswordEncoder passwordEncoder;
 
-    public Object getAllManagers() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllManagers'");
+    public List<Managers> getAllManagers() {
+        
+        return null;
     }
 
     public void createManager(ManagerRequest request) {
@@ -61,14 +63,12 @@ public class AdminService {
     }
 
     public void deleteManager(Integer managerId) {
-       
 
         Managers manager = managersRepository.findById(managerId)
                 .orElseThrow(() -> new ResourceNotFoundException("manager not found"));
 
-            managersRepository.delete(manager);
+        managersRepository.delete(manager);
 
-        
     }
 
 }
