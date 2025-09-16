@@ -1,28 +1,21 @@
 package dev.api.courses;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.StripeResponse;
 import com.stripe.param.checkout.SessionCreateParams;
 
-import dev.api.common.ApiResponse;
 import dev.api.courses.model.Courses;
 import dev.api.courses.model.Status;
 import dev.api.courses.model.redis.CacheCourse;
 import dev.api.courses.repository.CoursesRepository;
-import dev.api.courses.repository.redis.CacheCartRepository;
 import dev.api.courses.repository.redis.CacheCourseRepository;
 import dev.api.courses.requests.PaymentRequest;
 import dev.api.courses.responses.PaymenetResponse;
@@ -127,8 +120,8 @@ public class PaymentService {
             // Stripe.apiKey = secretKey;
             Session session = Session.retrieve(sessionId);
             if("complete".equals(session.getPaymentStatus())){
-                Integer courseId = Integer.parseInt(session.getMetadata().get("courseId"));
-                Integer studentid = Integer.parseInt(session.getMetadata().get("studentid"));
+                Integer courseId = Integer.valueOf(session.getMetadata().get("courseId"));
+                Integer studentid = Integer.valueOf(session.getMetadata().get("studentid"));
 
                 Students student = studentsRepository.findById(studentid).get();
                 Courses course = coursesRepository.findById(courseId).get();

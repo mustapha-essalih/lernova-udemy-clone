@@ -33,7 +33,7 @@ public class ManagerController {
  
     
      @GetMapping("/instructors")
-    public ResponseEntity<List<?>> getInstructorsWithCourses() {
+    public ResponseEntity<?> getInstructorsWithCourses() {
         return ResponseEntity.ok(managerService.getInstructorsWithCourses());
     }
 
@@ -47,7 +47,7 @@ public class ManagerController {
     @PostMapping("/courses/{courseId}/review")
     public ResponseEntity<Void> reviewCourse(@PathVariable Long courseId) {
 
-       managerService.reviewCourse(courseId);
+    //    managerService.reviewCourse(courseId);
         return ResponseEntity.ok().build();
     }
 }
