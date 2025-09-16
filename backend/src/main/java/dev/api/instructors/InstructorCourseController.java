@@ -34,10 +34,14 @@ public class InstructorCourseController {
     @PostMapping("/init")
     public ResponseEntity<CacheCourseResponse> init(@RequestBody CourseInitRequest request , Principal principal) {
     
-        CacheCourseResponse course = instructorCourseService.init(request , "principal.getName()");
+        CacheCourseResponse course = instructorCourseService.init(request , "sihadev734@skateru.com");
         ApiResponse<CacheCourseResponse> response = new ApiResponse<>(true, "Course created successfully", course);
         return ResponseEntity.status(HttpStatus.CREATED).body(course);
     }
+
+
+
+    
 
 
     

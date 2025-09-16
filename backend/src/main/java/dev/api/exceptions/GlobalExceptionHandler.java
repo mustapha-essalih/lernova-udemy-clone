@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 // import org.springframework.security.access.AccessDeniedException;
 // import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -133,6 +134,17 @@ public class GlobalExceptionHandler {
     //     );
     //     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     // }
+
+
+    @ExceptionHandler(value = AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<Object>> accessDenied(AuthorizationDeniedException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
+            false,
+            "Access Denied",
+            null
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidArgument(MethodArgumentNotValidException ex) {
