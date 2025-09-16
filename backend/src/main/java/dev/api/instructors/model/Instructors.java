@@ -1,13 +1,12 @@
 package dev.api.instructors.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 import dev.api.authentication.model.BaseEntity;
-import dev.api.authentication.model.Roles;
-import dev.api.courses.model.Courses;
+import dev.api.common.enums.Roles;
+import dev.api.courses.model.Course;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,7 +41,7 @@ public class Instructors extends BaseEntity {
 
  
     @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Courses> courses = new HashSet<>(); // Use Set to prevent duplicates
+    private Set<Course> courses = new HashSet<>(); // Use Set to prevent duplicates
 
  
 
@@ -116,11 +115,11 @@ public class Instructors extends BaseEntity {
         this.verificationCodeExpiresAt = verificationCodeExpiresAt;
     }
 
-    public Set<Courses> getCourses() {
+    public Set<Course> getCourses() {
         return courses;
     }
 
-    public void setCourses(Set<Courses> courses) {
+    public void setCourses(Set<Course> courses) {
         this.courses = courses;
     }
  

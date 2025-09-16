@@ -7,44 +7,39 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@Table(name = "video_content")
 @Entity
-public class Videos {
+class VideoContent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer videoId;
+    @Column(name = "video_content_id")
+    private Integer videoContentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "section_id", nullable = false)
-    private Sections section;
+    @Column(name = "video_url", nullable = false, columnDefinition = "TEXT")
+    private String videoUrl;
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String videoUrl; 
-
+    @Column(name = "duration_minutes")
     private Integer durationMinutes;
 
+    @Column(name = "is_preview")
     private Boolean isPreview;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id", unique = true, nullable = false)
+    private Lesson lesson;
 
-    public Sections getSection() {
-        return section;
+    public Integer getVideoContentId() {
+        return videoContentId;
     }
 
-    public void setSection(Sections section) {
-        this.section = section;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void setVideoContentId(Integer videoContentId) {
+        this.videoContentId = videoContentId;
     }
 
     public String getVideoUrl() {
@@ -71,14 +66,15 @@ public class Videos {
         this.isPreview = isPreview;
     }
 
-    public Integer getVideoId() {
-        return videoId;
+    public Lesson getLesson() {
+        return lesson;
     }
 
-    public void setVideoId(Integer videoId) {
-        this.videoId = videoId;
-    } 
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
+    }
+
+
 
     
-
 }

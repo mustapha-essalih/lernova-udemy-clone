@@ -13,65 +13,73 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
 
+
+@NoArgsConstructor
+@Table(name = "sections")
 @Entity
-public class Sections {
+public class Section {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sectionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Courses course;
 
     @Column(nullable = false)
     private String title;
 
-    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Videos> videos = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 
+    
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Resources> resources = new HashSet<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
+    
     public Integer getSectionId() {
         return sectionId;
     }
+
 
     public void setSectionId(Integer sectionId) {
         this.sectionId = sectionId;
     }
 
+
     public String getTitle() {
         return title;
     }
+
 
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public Set<Videos> getVideos() {
-        return videos;
-    }
 
-    public void setVideos(Set<Videos> videos) {
-        this.videos = videos;
-    }
-
-    public Courses getCourse() {
+    public Course getCourse() {
         return course;
     }
 
-    public void setCourse(Courses course) {
+
+    public void setCourse(Course course) {
         this.course = course;
     }
 
-    public Set<Resources> getResources() {
-        return resources;
+
+    public Set<Lesson> getLessons() {
+        return lessons;
     }
 
-    public void setResources(Set<Resources> resources) {
-        this.resources = resources;
+
+    public void setLessons(Set<Lesson> lessons) {
+        this.lessons = lessons;
     }
 
+
+    
+    
+    
 }

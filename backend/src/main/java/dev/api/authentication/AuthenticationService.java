@@ -18,17 +18,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import dev.api.authentication.model.Roles;
 import dev.api.authentication.request.LoginRequest;
 import dev.api.authentication.request.RegistrationRequest;
 import dev.api.common.EmailService;
 import dev.api.common.GeneraleService;
-import dev.api.courses.model.redis.CacheStudent;
-import dev.api.courses.repository.redis.CacheStudentRepository;
+import dev.api.common.enums.Roles;
 import dev.api.instructors.model.Instructors;
 import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.security.JwtService;
-import dev.api.students.model.Students;
+import dev.api.students.model.Student;
 import dev.api.students.repository.StudentsRepository;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -42,7 +40,6 @@ public class AuthenticationService {
     private JwtService jwtService;
     private EmailService emailService;
     private GeneraleService generaleService;
-
 
     @Value("${site.base.url.http}")
     private String urlOfRequest;
@@ -77,7 +74,7 @@ public class AuthenticationService {
 
             String passwordHashed = passwordEncoder.encode(request.getPassword());
 
-            Students student = new Students(request.getUsername(), request.getEmail(), passwordHashed,
+            Student student = new Student(request.getUsername(), request.getEmail(), passwordHashed,
                     request.getFirstName(),
                     request.getLastName(), null, Roles.STUDENT);
 
@@ -140,8 +137,7 @@ public class AuthenticationService {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid username or password");
         } catch (Exception e) {
-            if(e.getMessage().equals("User is disabled"))
-            {
+            if (e.getMessage().equals("User is disabled")) {
                 return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("verify you email");
             }
             return ResponseEntity.status(500).body("An unexpected error occurred during login.");
@@ -150,7 +146,7 @@ public class AuthenticationService {
 
     public ResponseEntity<String> resendEmailVerification(String email) {
 
-        Students student = studentsRepository.findByEmail(email).orElse(null);
+        Student student = studentsRepository.findByEmail(email).orElse(null);
         if (student != null) {
             if (student.isEnabled())
                 return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
@@ -171,7 +167,7 @@ public class AuthenticationService {
         return ResponseEntity.status(HttpStatus.SC_GONE).body("user not found");
     }
 
-    private void sendEmailVerification(Students student, Instructors instructor) {
+    private void sendEmailVerification(Student student, Instructors instructor) {
 
         String generateVerificationToken = UUID.randomUUID().toString();
         if (student != null) {

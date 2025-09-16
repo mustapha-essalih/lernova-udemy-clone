@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import dev.api.courses.model.Courses;
+import dev.api.courses.model.Course;
 import dev.api.courses.repository.CoursesRepository;
 import lombok.AllArgsConstructor;
 
@@ -15,10 +15,10 @@ public class ManagerService {
 
     private CoursesRepository coursesRepository;
 
-    public List<Courses> getPendingCourses() {
+    public List<Course> getPendingCourses() {
     
         // get them from cache
-        List<Courses> courses = coursesRepository.findAllPendingCourses();
+        List<Course> courses = coursesRepository.findAllPendingCourses();
 
         // use map struct anad handle the upload
         return null;

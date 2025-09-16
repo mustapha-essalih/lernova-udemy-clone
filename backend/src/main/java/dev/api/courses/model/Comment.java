@@ -13,10 +13,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 
+@Table(name="comments")
 @Entity
-public class Comments {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +31,7 @@ public class Comments {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
-    private Courses course;
+    private Course course;
 
     
     @CreationTimestamp
@@ -72,11 +74,11 @@ public class Comments {
         this.updatedAt = updatedAt;
     }
 
-    public Courses getCourse() {
+    public Course getCourse() {
         return course;
     }
 
-    public void setCourse(Courses course) {
+    public void setCourse(Course course) {
         this.course = course;
     }
 

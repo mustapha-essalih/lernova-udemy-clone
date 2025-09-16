@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS courses (
     course_id SERIAL PRIMARY KEY,
     instructor_id INTEGER NOT NULL REFERENCES instructors(id) ON DELETE CASCADE,
@@ -14,7 +15,6 @@ CREATE TABLE IF NOT EXISTS courses (
     level VARCHAR(20) NOT NULL DEFAULT 'ALL_LEVELS',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
- 
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS orders (
 CREATE TABLE IF NOT EXISTS comments (
     comment_id SERIAL PRIMARY KEY,
     comment TEXT NOT NULL,
-    course_id INTEGER NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,  
+    course_id INTEGER NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -41,31 +41,41 @@ CREATE TABLE IF NOT EXISTS sections (
     title VARCHAR(255) NOT NULL
 );
 
--- One-to-many: sections -> videos (ON DELETE CASCADE)
-CREATE TABLE IF NOT EXISTS videos (
-    video_id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS subcategories (
+   subcategory_id SERIAL PRIMARY KEY,
+    main_category_id INTEGER NOT NULL REFERENCES main_categories(main_categorie_id) ON DELETE CASCADE,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS lessons (
+    lesson_id SERIAL PRIMARY KEY,
     section_id INTEGER NOT NULL REFERENCES sections(section_id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
+    lesson_type VARCHAR(10) NOT NULL CHECK (lesson_type IN ('VIDEO', 'TEXT')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS video_content (
+    video_content_id SERIAL PRIMARY KEY,
+    lesson_id INTEGER UNIQUE NOT NULL REFERENCES lessons(lesson_id) ON DELETE CASCADE,
     video_url TEXT NOT NULL,
     duration_minutes INTEGER,
     is_preview BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE IF NOT EXISTS text_content (
+    text_content_id SERIAL PRIMARY KEY,
+    lesson_id INTEGER UNIQUE NOT NULL REFERENCES lessons(lesson_id) ON DELETE CASCADE,
+    content TEXT NOT NULL
+);
 
--- One-to-many: sections -> section_resources (ON DELETE CASCADE)
 CREATE TABLE IF NOT EXISTS resources (
     resource_id SERIAL PRIMARY KEY,
-    section_id INTEGER NOT NULL REFERENCES sections(section_id) ON DELETE CASCADE,
+    lesson_id INTEGER NOT NULL REFERENCES lessons(lesson_id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     resource_url TEXT NOT NULL,
     is_preview BOOLEAN DEFAULT FALSE,
     file_type VARCHAR(50)
-);
-
-
-CREATE TABLE IF NOT EXISTS subcategories (
-   subcategory_id SERIAL PRIMARY KEY,
-    main_category_id INTEGER NOT NULL REFERENCES main_categories(main_categorie_id) ON DELETE CASCADE,
-    name VARCHAR(100) UNIQUE NOT NULL
-
 );

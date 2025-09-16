@@ -8,41 +8,47 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
+
+
+
 
 @Entity
-public class Resources {
+@Table(name = "resources")
+@NoArgsConstructor
+class Resource {
 
-     @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "resource_id")
     private Integer resourceId;
+
+    @Column(nullable = false, length = 255)
+    private String title;
+
+    @Column(name = "resource_url", nullable = false, columnDefinition = "TEXT")
+    private String resourceUrl;
+
+    @Column(name = "is_preview")
+    private Boolean isPreview;
+
+    @Column(name = "file_type", length = 50)
+    private String fileType;
 
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "section_id", nullable = false)
-    private Sections section;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String resourceUrl; 
-
-    @Column(length = 50)
-    private String fileType; 
+    @JoinColumn(name = "lesson_id", nullable = false)
+    private Lesson lesson;
 
 
-    @Column(nullable = false)
-    private Boolean isPreview;
-
-
-
-    public Sections getSection() {
-        return section;
+    public Integer getResourceId() {
+        return resourceId;
     }
 
 
-    public void setSection(Sections section) {
-        this.section = section;
+    public void setResourceId(Integer resourceId) {
+        this.resourceId = resourceId;
     }
 
 
@@ -66,16 +72,6 @@ public class Resources {
     }
 
 
-    public String getFileType() {
-        return fileType;
-    }
-
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
-
-
     public Boolean getIsPreview() {
         return isPreview;
     }
@@ -86,16 +82,26 @@ public class Resources {
     }
 
 
-    public Integer getResourceId() {
-        return resourceId;
+    public String getFileType() {
+        return fileType;
     }
 
 
-    public void setResourceId(Integer resourceId) {
-        this.resourceId = resourceId;
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 
 
-    
+    public Lesson getLesson() {
+        return lesson;
+    }
+
+
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
+    }
+
+
+
     
 }

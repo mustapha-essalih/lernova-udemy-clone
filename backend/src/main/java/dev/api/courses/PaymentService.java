@@ -12,19 +12,19 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 
-import dev.api.courses.model.Courses;
-import dev.api.courses.model.Status;
+import dev.api.common.enums.Status;
+import dev.api.common.exceptions.BadRequestException;
+import dev.api.common.exceptions.BusinessException;
+import dev.api.common.exceptions.InternalServerError;
+import dev.api.common.exceptions.ResourceNotFoundException;
+import dev.api.courses.model.Course;
 import dev.api.courses.model.redis.CacheCourse;
 import dev.api.courses.repository.CoursesRepository;
 import dev.api.courses.repository.redis.CacheCourseRepository;
 import dev.api.courses.requests.PaymentRequest;
 import dev.api.courses.responses.PaymenetResponse;
-import dev.api.exceptions.BadRequestException;
-import dev.api.exceptions.BusinessException;
-import dev.api.exceptions.InternalServerError;
-import dev.api.exceptions.ResourceNotFoundException;
 import dev.api.students.model.Order;
-import dev.api.students.model.Students;
+import dev.api.students.model.Student;
 import dev.api.students.repository.OrderRepository;
 import dev.api.students.repository.StudentsRepository;
 
@@ -49,7 +49,6 @@ public class PaymentService {
     private CacheCourseRepository cacheCourseRepository;
     private CartService cartService;
 
-    
     public PaymentService(StudentsRepository studentsRepository, CoursesRepository coursesRepository,
             OrderRepository orderRepository, CacheCourseRepository cacheCourseRepository, CartService cartService) {
         this.studentsRepository = studentsRepository;
@@ -65,9 +64,10 @@ public class PaymentService {
      * @return Stripe response containing session details or error information
      */
     public PaymenetResponse checkoutProducts(PaymentRequest request, Integer userId) {
-        
-        Courses course = coursesRepository.findById(request.getCourseId()).orElseThrow(() -> new ResourceNotFoundException("course not found"));
-        
+
+        Course course = coursesRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("course not found"));
+
         if (!course.getStatus().equals(Status.PUBLISHED)) {
             throw new BusinessException("Course is not available for purchase");
         }
@@ -119,12 +119,12 @@ public class PaymentService {
         try {
             // Stripe.apiKey = secretKey;
             Session session = Session.retrieve(sessionId);
-            if("complete".equals(session.getPaymentStatus())){
+            if ("complete".equals(session.getPaymentStatus())) {
                 Integer courseId = Integer.valueOf(session.getMetadata().get("courseId"));
                 Integer studentid = Integer.valueOf(session.getMetadata().get("studentid"));
 
-                Students student = studentsRepository.findById(studentid).get();
-                Courses course = coursesRepository.findById(courseId).get();
+                Student student = studentsRepository.findById(studentid).get();
+                Course course = coursesRepository.findById(courseId).get();
 
                 if (student.getCourses().contains(course)) {
                     throw new BadRequestException("Student already enrolled in this course");
@@ -132,11 +132,11 @@ public class PaymentService {
 
                 Order order = new Order();
 
-                Set<Courses> courses = new HashSet<>();
+                Set<Course> courses = new HashSet<>();
                 courses.add(course);
 
                 student.getCourses().add(course);
-                
+
                 course.getStudents().add(student);
 
                 order.setCourses(courses);
@@ -148,15 +148,15 @@ public class PaymentService {
                 orderRepository.save(order);
 
                 // need course id in cache with username
-                 Optional<CacheCourse> cacheCourse = cacheCourseRepository.findById("course_" + courseId);
+                Optional<CacheCourse> cacheCourse = cacheCourseRepository.findById("course_" + courseId);
                 if (!cacheCourse.isEmpty()) {
-                    cartService.removeItemFromCart("course_" + courseId , student.getUsername());
+                    cartService.removeItemFromCart("course_" + courseId, student.getUsername());
                 }
 
-            }else{
+            } else {
                 throw new BadRequestException("Payment verification failed");
             }
-        
+
         } catch (StripeException e) {
             throw new BadRequestException("Payment verification failed");
         }

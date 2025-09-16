@@ -9,10 +9,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
 
 
+@Table(name = "subcategories")
+@NoArgsConstructor
 @Entity
-public class Subcategories {
+public class Subcategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +25,7 @@ public class Subcategories {
     
     @ManyToOne(fetch = FetchType.LAZY) 
     @JoinColumn(name = "main_category_id", nullable = false) 
-    private MainCategories mainCategory; 
+    private MainCategory mainCategory; 
 
     @Column(nullable = false, length = 100) 
     private String name;
@@ -34,11 +38,11 @@ public class Subcategories {
         this.subcategoryId = subcategoryId;
     }
 
-    public MainCategories getMainCategory() {
+    public MainCategory getMainCategory() {
         return mainCategory;
     }
 
-    public void setMainCategory(MainCategories mainCategory) {
+    public void setMainCategory(MainCategory mainCategory) {
         this.mainCategory = mainCategory;
     }
 

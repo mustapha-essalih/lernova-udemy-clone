@@ -6,9 +6,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import dev.api.admin.requests.ManagerRequest;
-import dev.api.authentication.model.Roles;
-import dev.api.exceptions.BadRequestException;
-import dev.api.exceptions.ResourceNotFoundException;
+import dev.api.common.enums.Roles;
+import dev.api.common.exceptions.BadRequestException;
+import dev.api.common.exceptions.ResourceNotFoundException;
 import dev.api.managers.model.Managers;
 import dev.api.managers.repository.ManagersRepository;
 import lombok.AllArgsConstructor;
