@@ -10,9 +10,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
+@Setter
+@Getter
 @Table(name = "subcategories")
 @NoArgsConstructor
 @Entity
@@ -29,35 +33,6 @@ public class Subcategory {
 
     @Column(nullable = false, length = 100) 
     private String name;
-
-    public Integer getSubcategoryId() {
-        return subcategoryId;
-    }
-
-    public void setSubcategoryId(Integer subcategoryId) {
-        this.subcategoryId = subcategoryId;
-    }
-
-    public MainCategory getMainCategory() {
-        return mainCategory;
-    }
-
-    public void setMainCategory(MainCategory mainCategory) {
-        this.mainCategory = mainCategory;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-     
-    
-    
-    
     
     
 }

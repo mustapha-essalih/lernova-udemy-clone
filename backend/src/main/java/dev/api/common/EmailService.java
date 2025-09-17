@@ -9,10 +9,10 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import dev.api.instructors.model.Instructors;
-import dev.api.instructors.repository.InstructorsRepository;
-import dev.api.students.model.Student;
-import dev.api.students.repository.StudentsRepository;
+import dev.api.user.model.Instructors;
+import dev.api.user.model.Student;
+import dev.api.user.repository.InstructorsRepository;
+import dev.api.user.repository.StudentsRepository;
 import jakarta.mail.internet.MimeMessage;
 
 @Service

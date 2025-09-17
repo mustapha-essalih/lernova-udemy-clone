@@ -26,7 +26,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         return http.cors(Customizer.withDefaults()) // ?
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/v1/auth/**", "/api/v1/search/**"  , "/api/v1/instructor/courses/**")
+                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/v1/auth/**", "/api/v1/search/**" )
                         .permitAll()
                         .anyRequest()
                         .authenticated())
