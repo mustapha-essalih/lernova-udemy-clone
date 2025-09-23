@@ -25,6 +25,7 @@ public class LessonRedisEntity implements Serializable {
     private String lessonType;
     private Integer durationMinutes;
     private Boolean isPreview;
+    private String filePath;
 
     private List<String> resourceIds = new ArrayList<>();
 }

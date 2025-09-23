@@ -39,6 +39,7 @@ public class CourseRedisEntity implements Serializable {
     private String status;
     private String level;
     private Integer subcategoryId;
+    private String imagePath;
 
     private List<String> sectionIds = new ArrayList<>();
 }

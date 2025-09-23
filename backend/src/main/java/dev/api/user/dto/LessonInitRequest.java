@@ -20,12 +20,10 @@ public class LessonInitRequest {
     @NotBlank(message = "Lesson title cannot be blank")
     private String title;
 
-    @NotNull(message = "Lesson type cannot be null")
-    private LessonType lessonType;
-
     private Integer durationMinutes;
+
+    @NotNull
     private Boolean isPreview;
     
-    @Valid
     private List<ResourceInitRequest> resources;
 }

@@ -9,8 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "video_content")
 @Entity
@@ -33,48 +37,6 @@ class VideoContent {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", unique = true, nullable = false)
     private Lesson lesson;
-
-    public Integer getVideoContentId() {
-        return videoContentId;
-    }
-
-    public void setVideoContentId(Integer videoContentId) {
-        this.videoContentId = videoContentId;
-    }
-
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
-
-    public Integer getDurationMinutes() {
-        return durationMinutes;
-    }
-
-    public void setDurationMinutes(Integer durationMinutes) {
-        this.durationMinutes = durationMinutes;
-    }
-
-    public Boolean getIsPreview() {
-        return isPreview;
-    }
-
-    public void setIsPreview(Boolean isPreview) {
-        this.isPreview = isPreview;
-    }
-
-    public Lesson getLesson() {
-        return lesson;
-    }
-
-    public void setLesson(Lesson lesson) {
-        this.lesson = lesson;
-    }
-
-
 
     
 }

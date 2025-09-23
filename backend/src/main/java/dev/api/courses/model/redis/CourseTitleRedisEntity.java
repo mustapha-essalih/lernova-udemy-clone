@@ -5,18 +5,17 @@ import org.springframework.data.redis.core.RedisHash;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 @Builder
-@RedisHash("resource")
-public class ResourceRedisEntity {
-
+@RedisHash("course_titles")
+public class CourseTitleRedisEntity {
+    
     @Id
     private String id;
+    
     private String title;
-    private String resourceUrl;
-    private Boolean isPreview;
-    private String filePath;
 }

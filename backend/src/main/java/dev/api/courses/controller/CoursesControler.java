@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -38,16 +37,14 @@ public class CoursesControler {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    private WebClient webClient;
 
     private ElasticsearchOperations elasticsearchOperations;
     private SuggestionDocumentRepository suggestionDocumentRepository;
  
-    public CoursesControler(WebClient.Builder webClient, ElasticsearchOperations elasticsearchOperations,
+    public CoursesControler( ElasticsearchOperations elasticsearchOperations,
             SuggestionDocumentRepository suggestionDocumentRepository,
             CourseDocumentRepository courseDocumentRepository) {
         this.courseDocumentRepository = courseDocumentRepository;
-        this.webClient = webClient.build();
         this.elasticsearchOperations = elasticsearchOperations;
         this.suggestionDocumentRepository = suggestionDocumentRepository;
     }
@@ -93,32 +90,32 @@ public class CoursesControler {
                         })
                 });
 
-        String response = webClient.post()
-                .uri(geminiApiUrl + geminiApiKey)
-                .header("Content-Type", "application/json")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-            System.out.println("OK");
-        ObjectMapper mapper = new ObjectMapper();
+        // String response = webClient.post()
+        //         .uri(geminiApiUrl + geminiApiKey)
+        //         .header("Content-Type", "application/json")
+        //         .bodyValue(requestBody)
+        //         .retrieve()
+        //         .bodyToMono(String.class)
+        //         .block();
+        //     System.out.println("OK");
+        // ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode rootNode = mapper.readTree(response);
+        // JsonNode rootNode = mapper.readTree(response);
 
-        JsonNode textNode = rootNode.path("candidates")
-                .get(0)
-                .path("content")
-                .path("parts")
-                .get(0)
-                .path("text");
+        // JsonNode textNode = rootNode.path("candidates")
+        //         .get(0)
+        //         .path("content")
+        //         .path("parts")
+        //         .get(0)
+        //         .path("text");
 
-        if (textNode != null) {
-            String textWithMarkdown = textNode.asText();
-            String cleanedJson = textWithMarkdown.replace("```json\n", "").replace("```", "").replace("\"", "")
-                    .replace("[", "").replace("]", "");
-            cleanedJson += "," + instructor;
-            return cleanedJson;
-        }
+        // if (textNode != null) {
+        //     String textWithMarkdown = textNode.asText();
+        //     String cleanedJson = textWithMarkdown.replace("```json\n", "").replace("```", "").replace("\"", "")
+        //             .replace("[", "").replace("]", "");
+        //     cleanedJson += "," + instructor;
+        //     return cleanedJson;
+        // }
 
         throw null;
 
