@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.api.common.ApiResponse;
 import dev.api.courses.model.Course;
+import dev.api.user.dto.CompleteCourseResponse;
 import dev.api.user.service.ManagerService;
 import lombok.AllArgsConstructor;
 
 
-// @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
+@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/managers")
@@ -27,13 +28,15 @@ public class ManagerController {
 
 
     @GetMapping("/courses/pending")
-    public List<Course> getPendingCourses() {
+    public ResponseEntity<ApiResponse<List<CompleteCourseResponse>>> getPendingCourses() {
     
-        return managerService.getPendingCourses();
+        List<CompleteCourseResponse> pendingCourses = managerService.getPendingCourses();
+
+        return ResponseEntity.ok().body(new ApiResponse<>(true, null, pendingCourses));
     }
  
     
-     @GetMapping("/instructors")
+    @GetMapping("/instructors")
     public ResponseEntity<?> getInstructorsWithCourses() {
         return ResponseEntity.ok(managerService.getInstructorsWithCourses());
     }

@@ -11,21 +11,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.api.controller.dto.FileMetadata;
 import dev.api.dto.ApiResponse;
-import dev.api.service.UploadService;
+import dev.api.service.InstructorCourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
 
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/instructor")
 @RestController
-public class UploadController {
+public class InstructorCourseController {
 
     @Value("${app.upload-directory}")
     private String uploadDirectory;
 
-    private final UploadService uploadService;
+    private final InstructorCourseService instructorCourseService;
 
     @PostMapping(value = "/courses")
     public Mono<ApiResponse<Object>> uploadLargeFile(
@@ -36,9 +37,13 @@ public class UploadController {
                 metadata.getCourseTitile(), metadata.getSectionTitile(), 
                 metadata.getLessonTitle(), metadata.getResourceTitle());
         
-        return uploadService.uploadCourseResource(filePart, metadata)
+        return instructorCourseService.uploadCourseResource(filePart, metadata)
                 .then(Mono.just(new ApiResponse<>(true, "File uploaded successfully", null)))
                 .doOnSuccess(response -> log.info("Upload completed successfully"))
                 .doOnError(error -> log.error("Upload failed: {}", error.getMessage()));
     }
+
+ 
+ 
+
 }

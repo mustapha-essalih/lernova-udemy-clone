@@ -11,21 +11,46 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 
 import dev.api.controller.dto.FileMetadata;
+import dev.api.dto.SectionCompleteDto;
+import dev.api.dto.LessonCompleteDto;
+import dev.api.dto.ResourceCompleteDto;
+import dev.api.entity.CourseRedisEntity;
+import dev.api.entity.SectionRedisEntity;
+import dev.api.entity.LessonRedisEntity;
+import dev.api.entity.ResourceRedisEntity;
 import dev.api.exception.BadRequestException;
 import dev.api.exception.FileUploadException;
 import dev.api.exception.ResourceNotFoundException;
+import dev.api.repository.CourseRedisRepository;
+import dev.api.repository.SectionRedisRepository;
+import dev.api.repository.LessonRedisRepository;
+import dev.api.repository.ResourceRedisRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-@Slf4j
+import java.util.ArrayList;
+
 @Service
-@RequiredArgsConstructor
-public class UploadService {
+public class InstructorCourseService {
 
     @Value("${app.upload-directory}")
     private String uploadDirectory;
+
+    private final CourseRedisRepository courseRedisRepository;
+    private final SectionRedisRepository sectionRedisRepository;
+    private final LessonRedisRepository lessonRedisRepository;
+    private final ResourceRedisRepository resourceRedisRepository;
+
+    public InstructorCourseService(CourseRedisRepository courseRedisRepository,
+                                   SectionRedisRepository sectionRedisRepository,
+                                   LessonRedisRepository lessonRedisRepository,
+                                   ResourceRedisRepository resourceRedisRepository) {
+        this.courseRedisRepository = courseRedisRepository;
+        this.sectionRedisRepository = sectionRedisRepository;
+        this.lessonRedisRepository = lessonRedisRepository;
+        this.resourceRedisRepository = resourceRedisRepository;
+    }
 
     // Allowed file types for Udemy platform
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(
@@ -54,7 +79,6 @@ public class UploadService {
                     String originalFileName = filePart.filename();
                     String extension = validateFileType(originalFileName);
                     
-                    log.info("Processing file: {} with extension: {}", originalFileName, extension);
                     
                     return validateAndPreparePath(metadata, extension, originalFileName)
                             .flatMap(path -> writeFileWithProgress(filePart, path, metadata))
@@ -122,21 +146,13 @@ public class UploadService {
             String fileName = baseFileName + extension;
             
             Path filePath = lessonPath.resolve(fileName);
+            System.out.println("file: " + filePath);
             return filePath;
         });
     }
 
     private Mono<Void> writeFileWithProgress(FilePart filePart, Path path, FileMetadata metadata) {
         return filePart.transferTo(path)
-                .doOnSuccess(unused -> {
-                    try {
-                        long fileSize = Files.size(path);
-                        log.info("Successfully uploaded '{}' ({} bytes) to {}", 
-                                path.getFileName().toString(), fileSize, path.getParent().toString());
-                    } catch (Exception e) {
-                        log.warn("Could not get file size for: {}", path);
-                    }
-                })
                 .onErrorMap(throwable -> {
                     // Handle specific upload errors
                     if (throwable.getMessage() != null && 
@@ -173,4 +189,5 @@ public class UploadService {
                    .replaceAll("[^a-zA-Z0-9._-]", "")
                    .toLowerCase();
     }
+
 }

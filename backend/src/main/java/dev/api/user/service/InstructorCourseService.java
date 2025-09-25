@@ -27,6 +27,7 @@ import dev.api.courses.repository.redis.CourseTitleRedisRepository;
 import dev.api.courses.repository.redis.LessonRedisRepository;
 import dev.api.courses.repository.redis.ResourcesRedisRepository;
 import dev.api.courses.repository.redis.SectionsRedisRepository;
+import dev.api.user.dto.CompleteCourseResponse;
 import dev.api.user.dto.CourseInitRequest;
 import dev.api.user.dto.LessonInitRequest;
 import dev.api.user.dto.ResourceInitRequest;
@@ -46,6 +47,7 @@ public class InstructorCourseService {
     private InstructorsRepository instructorsRepository;
     private LessonRedisRepository lessonRedisRepository;
     private CourseTitleRedisRepository courseTitleRedisRepository;
+    private ManagerService managerService;
 
     public InstructorCourseService(CourseRedisRepository courseRedisRepository,
             SectionsRedisRepository sectionsRedisRepository, ResourcesRedisRepository resourcesRedisRepository,
@@ -140,12 +142,13 @@ public class InstructorCourseService {
         for (LessonInitRequest lessonDto : lessonsRequest) {
             String lessonId = "lesson_" + UUID.randomUUID().toString();
             Path lessonDir = createLessonDirectory(sectionDir, lessonDto.getTitle());
-            
+
             List<String> resourceIds = processResources(lessonDto.getResources(), lessonDir, entitiesHolder);
             
             LessonRedisEntity lessonEntity = LessonRedisEntity.builder()
                     .id(lessonId)
                     .title(lessonDto.getTitle())
+                    .lessonPath(lessonDir.toString())
                     .durationMinutes(lessonDto.getDurationMinutes())
                     .isPreview(lessonDto.getIsPreview())
                     .resourceIds(resourceIds)
@@ -178,7 +181,7 @@ public class InstructorCourseService {
                     .id(resourceId)
                     .title(resourceDto.getTitle())
                     .isPreview(resourceDto.getIsPreview())
-                    .resourceUrl(resourceDto.getResourceUrl())    
+                    .resourcePath(lessonDir.toString())
                     .build();
             entitiesHolder.addResource(resourceEntity);
             resourceIds.add(resourceId);
@@ -222,18 +225,28 @@ public class InstructorCourseService {
     }
 
     public String storeCourseImage(String courseId, MultipartFile imageFile, Integer instructorId) {
-        // Validate image file
+        // Validate that only one image is provided
+        if (imageFile == null) {
+            throw new BadRequestException("No image file provided");
+        }
+        
+        // Validate image file is not empty
         if (imageFile.isEmpty()) {
             throw new BadRequestException("Image file is empty");
         }
         
-        // Validate file type
+        // Validate file type - must be an image
         String contentType = imageFile.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
-            throw new BadRequestException("File must be an image");
+            throw new BadRequestException("File must be an image (jpg, png, gif, etc.)");
         }
         
-        // Validate file size (e.g., max 5MB)
+        // Validate specific image formats
+        if (!isValidImageFormat(contentType)) {
+            throw new BadRequestException("Unsupported image format. Supported formats: JPEG, PNG, GIF, WebP");
+        }
+        
+        // Validate file size - max 5MB for images
         long maxSize = 5 * 1024 * 1024; // 5MB
         if (imageFile.getSize() > maxSize) {
             throw new BadRequestException("Image file size must be less than 5MB");
@@ -284,7 +297,7 @@ public class InstructorCourseService {
                 .level(courseEntity.getLevel())
                 .subcategoryId(courseEntity.getSubcategoryId())
                 .sectionIds(courseEntity.getSectionIds())
-                .imagePath(filename) // Store image path in Redis
+                .imagePath(imagePath.toString()) // Store image path in Redis
                 .build();
             
             courseRedisRepository.save(updatedCourse);
@@ -297,44 +310,6 @@ public class InstructorCourseService {
         }
     }
 
-    public String uploadFileToTmp(MultipartFile file) {
-        // Validate file
-        if (file.isEmpty()) {
-            throw new BadRequestException("File is empty");
-        }
-        
-        // Validate file size (e.g., max 5GB)
-        long maxSize = 5L * 1024 * 1024 * 1024; // 5GB
-        if (file.getSize() > maxSize) {
-            throw new BadRequestException("File size must be less than 5GB");
-        }
-        
-        try {
-            // Get original filename or create one if null
-            String originalFilename = file.getOriginalFilename();
-            if (originalFilename == null || originalFilename.trim().isEmpty()) {
-                originalFilename = "uploaded_file";
-            }
-            
-            // Generate unique filename with timestamp
-            String timestamp = String.valueOf(System.currentTimeMillis());
-            String extension = originalFilename.contains(".") 
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
-            
-            String filename = "upload_" + timestamp + extension;
-            Path filePath = Paths.get("/tmp", filename);
-            
-            // Save the file to /tmp directory
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            // Return the full path
-            return filePath.toString();
-            
-        } catch (IOException e) {
-            throw new InternalServerError("Failed to store file: " + e.getMessage());
-        }
-    }
     
     
     private static class CourseEntitiesHolder {
@@ -366,7 +341,14 @@ public class InstructorCourseService {
             return sections;
         }
     }
- 
+    
+    private boolean isValidImageFormat(String contentType) {
+        return contentType.equals("image/jpeg") ||
+               contentType.equals("image/jpg") ||
+               contentType.equals("image/png") ||
+               contentType.equals("image/gif") ||
+               contentType.equals("image/webp");
+    }
 
     private String sanitizeTitle(String fileName) {
         if (fileName == null || fileName.trim().isEmpty()) {
@@ -389,4 +371,21 @@ public class InstructorCourseService {
             throw new BadRequestException("invalid price");
         }
     }
+
+
+
+
+ public CompleteCourseResponse getCourseFromCache(String courseId , Integer instructorId) {
+        // Get course from Redis
+        CourseRedisEntity course = courseRedisRepository.findById(courseId)
+            .orElseThrow(() -> new BadRequestException("Course not found"));
+        
+        if (course.getInstructorId() != instructorId){
+            throw new BadRequestException("You don't have permission to access this course");
+        }
+
+        return this.managerService.buildCompleteCourseResponse(course);
+    }
+    
+
 }
