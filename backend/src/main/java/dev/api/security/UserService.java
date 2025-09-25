@@ -5,14 +5,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
-import dev.api.admin.model.Admin;
-import dev.api.admin.repository.AdminRepository;
-import dev.api.instructors.model.Instructors;
-import dev.api.instructors.repository.InstructorsRepository;
-import dev.api.managers.model.Managers;
-import dev.api.managers.repository.ManagersRepository;
-import dev.api.students.model.Student;
-import dev.api.students.repository.StudentsRepository;
+import dev.api.user.model.Admin;
+import dev.api.user.model.Instructors;
+import dev.api.user.model.Managers;
+import dev.api.user.model.Student;
+import dev.api.user.repository.AdminRepository;
+import dev.api.user.repository.InstructorsRepository;
+import dev.api.user.repository.ManagersRepository;
+import dev.api.user.repository.StudentsRepository;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

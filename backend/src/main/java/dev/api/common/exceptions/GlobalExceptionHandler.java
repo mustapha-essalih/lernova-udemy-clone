@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartException;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
@@ -157,6 +158,25 @@ public class GlobalExceptionHandler {
             false,
             "Validation failed",
             errorMap
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMultipartException(MultipartException e) {
+        String message;
+        if (e.getMessage() != null && e.getMessage().contains("Current request is not a multipart request")) {
+            message = "Request must be sent as multipart/form-data. Please ensure you're sending files with the correct Content-Type header.";
+        } else if (e.getMessage() != null && e.getMessage().contains("Maximum upload size exceeded")) {
+            message = "File size exceeds the maximum allowed limit. Please upload a smaller file.";
+        } else {
+            message = "File upload error: " + (e.getMessage() != null ? e.getMessage() : "Invalid multipart request");
+        }
+        
+        ApiResponse<Object> response = new ApiResponse<>(
+            false,
+            message,
+            null
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

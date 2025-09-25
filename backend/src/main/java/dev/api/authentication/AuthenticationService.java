@@ -18,16 +18,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import dev.api.authentication.request.LoginRequest;
-import dev.api.authentication.request.RegistrationRequest;
+import dev.api.authentication.dto.LoginRequest;
+import dev.api.authentication.dto.RegistrationRequest;
 import dev.api.common.EmailService;
 import dev.api.common.GeneraleService;
 import dev.api.common.enums.Roles;
-import dev.api.instructors.model.Instructors;
-import dev.api.instructors.repository.InstructorsRepository;
 import dev.api.security.JwtService;
-import dev.api.students.model.Student;
-import dev.api.students.repository.StudentsRepository;
+import dev.api.user.model.Instructors;
+import dev.api.user.model.Student;
+import dev.api.user.repository.InstructorsRepository;
+import dev.api.user.repository.StudentsRepository;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Service

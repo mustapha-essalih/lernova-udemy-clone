@@ -14,9 +14,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "sections")
 @Entity
@@ -38,48 +42,4 @@ public class Section {
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Lesson> lessons = new HashSet<>();
 
-    
-    public Integer getSectionId() {
-        return sectionId;
-    }
-
-
-    public void setSectionId(Integer sectionId) {
-        this.sectionId = sectionId;
-    }
-
-
-    public String getTitle() {
-        return title;
-    }
-
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-
-    public Course getCourse() {
-        return course;
-    }
-
-
-    public void setCourse(Course course) {
-        this.course = course;
-    }
-
-
-    public Set<Lesson> getLessons() {
-        return lessons;
-    }
-
-
-    public void setLessons(Set<Lesson> lessons) {
-        this.lessons = lessons;
-    }
-
-
-    
-    
-    
 }

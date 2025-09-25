@@ -6,8 +6,6 @@ import io.jsonwebtoken.security.Keys;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -33,12 +31,10 @@ public class JwtService {
 
 
     public String generateToken(String username) {
-        Map<String, Object> claims = new HashMap<>(); 
-        claims.put("sub", username);
-        claims.put("iat", System.currentTimeMillis());
-        claims.put("exp", System.currentTimeMillis() + jwtExpiration);
         return Jwts.builder()
-                .claims(claims)
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(secretKey)
                 .compact();
     }

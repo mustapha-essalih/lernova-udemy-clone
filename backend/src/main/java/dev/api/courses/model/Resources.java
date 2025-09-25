@@ -9,14 +9,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
-
-
-@Entity
+@Builder
+@Setter
+@Getter
 @Table(name = "resources")
-@NoArgsConstructor
+@Entity
 class Resource {
 
     @Id
@@ -41,67 +44,4 @@ class Resource {
     @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
-
-    public Integer getResourceId() {
-        return resourceId;
-    }
-
-
-    public void setResourceId(Integer resourceId) {
-        this.resourceId = resourceId;
-    }
-
-
-    public String getTitle() {
-        return title;
-    }
-
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-
-    public String getResourceUrl() {
-        return resourceUrl;
-    }
-
-
-    public void setResourceUrl(String resourceUrl) {
-        this.resourceUrl = resourceUrl;
-    }
-
-
-    public Boolean getIsPreview() {
-        return isPreview;
-    }
-
-
-    public void setIsPreview(Boolean isPreview) {
-        this.isPreview = isPreview;
-    }
-
-
-    public String getFileType() {
-        return fileType;
-    }
-
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
-
-
-    public Lesson getLesson() {
-        return lesson;
-    }
-
-
-    public void setLesson(Lesson lesson) {
-        this.lesson = lesson;
-    }
-
-
-
-    
 }

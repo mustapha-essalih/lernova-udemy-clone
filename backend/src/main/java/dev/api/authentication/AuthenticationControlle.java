@@ -1,12 +1,11 @@
 package dev.api.authentication;
 
-import dev.api.authentication.request.EmailRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.api.authentication.request.EmailRequest;
-import dev.api.authentication.request.LoginRequest;
-import dev.api.authentication.request.RegistrationRequest;
+import dev.api.authentication.dto.EmailRequest;
+import dev.api.authentication.dto.LoginRequest;
+import dev.api.authentication.dto.RegistrationRequest;
 import dev.api.common.EmailService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

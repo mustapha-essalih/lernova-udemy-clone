@@ -8,9 +8,12 @@ import java.util.Set;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import dev.api.common.enums.LessonType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,8 +39,10 @@ class Lesson {
     @Column(nullable = false, length = 255)
     private String title;
 
-    @Column(name = "lesson_type", nullable = false, length = 10)
-    private String lessonType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private LessonType lessonType;
 
    
     @CreationTimestamp
