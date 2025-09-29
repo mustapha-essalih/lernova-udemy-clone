@@ -77,22 +77,22 @@ public class EmailService {
     // }
     // }
 
-    public ResponseEntity<String> emailVerification(String token) {
+    public ResponseEntity<ApiResponse<String>> emailVerification(String token) {
 
         Student student = studentsRepository.findByVerificationCode(token).orElse(null);
         if (student != null) {
             if (student.isEnabled())
-                return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "This account has already been verified, please, login.", null));
 
             LocalDateTime expiresAt = student.getVerificationCodeExpiresAt();
 
             if (expiresAt.isBefore(LocalDateTime.now())) {
-                return ResponseEntity.badRequest().body("Token expired"); // make shure the stsatus code
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Token expired", null));
             }
 
             student.setEnabled(true);
             studentsRepository.save(student);
-            return ResponseEntity.ok("Email verified successfully. Now you can login to your account");
+            return ResponseEntity.ok(new ApiResponse<>(true, "Email verified successfully. Now you can login to your account", null));
         }
 
         Instructors instructor = instructorsRepository.findByVerificationCode(token).orElse(null);
@@ -100,20 +100,20 @@ public class EmailService {
         if (instructor != null) {
 
             if (instructor.isEnabled())
-                return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "This account has already been verified, please, login.", null));
 
             LocalDateTime expiresAt = instructor.getVerificationCodeExpiresAt();
 
             if (expiresAt.isBefore(LocalDateTime.now())) {
-                return ResponseEntity.badRequest().body("Token expired"); // make shure the stsatus code
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Token expired", null));
             }
 
             instructor.setEnabled(true);
             instructorsRepository.save(instructor);
-            return ResponseEntity.ok("Email verified successfully. Now you can login to your account");
+            return ResponseEntity.ok(new ApiResponse<>(true, "Email verified successfully. Now you can login to your account", null));
         }
 
-        return ResponseEntity.badRequest().body("invalid token");
+        return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Invalid token", null));
 
     }
 

@@ -51,6 +51,11 @@ public class InstructorCourseController {
     }
 
 
+    // TODO:
+    // get course from postgres
+    // update course
+    // delete course
+    
     @GetMapping("/{courseId}")
     public ResponseEntity<ApiResponse<CompleteCourseResponse>> getCourseFromCache(
             @PathVariable String courseId , @AuthenticationPrincipal BaseEntity user) {

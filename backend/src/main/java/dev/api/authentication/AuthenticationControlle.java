@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.api.authentication.dto.EmailRequest;
 import dev.api.authentication.dto.LoginRequest;
 import dev.api.authentication.dto.RegistrationRequest;
+import dev.api.common.ApiResponse;
 import dev.api.common.EmailService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -25,38 +26,37 @@ public class AuthenticationControlle {
     private EmailService emailService;
 
     @PostMapping("/students")
-    public ResponseEntity<?> registerNewStudent(@RequestBody @Valid RegistrationRequest request) {
+    public ResponseEntity<ApiResponse<?>> registerNewStudent(@RequestBody @Valid RegistrationRequest request) {
 
         return authenticationService.registerNewStudent(request);
     }
 
     @PostMapping("/instructors")
-    public ResponseEntity<?> registerNewInstructor(@RequestBody @Valid RegistrationRequest request) {
+    public ResponseEntity<ApiResponse<?>> registerNewInstructor(@RequestBody @Valid RegistrationRequest request) {
 
         return authenticationService.registerNewInstructor(request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         return authenticationService.login(request, response);
     }
 
     @GetMapping("/email-verification")
-    public ResponseEntity<String> emailVerification(@RequestParam String token) {
+    public ResponseEntity<ApiResponse<String>> emailVerification(@RequestParam String token) {
         return emailService.emailVerification(token);
     }
 
     @PostMapping("/resend-email-verification")
-    ResponseEntity<String> resendEmailVerification(@RequestBody EmailRequest email) {
+    ResponseEntity<ApiResponse<String>> resendEmailVerification(@RequestBody EmailRequest email) {
         return authenticationService.resendEmailVerification(email.getEmail());
     }
 
     
     @PostMapping("/forget-password")  
-    public ResponseEntity<String> forgetPassword(@RequestBody EmailRequest email){
-        return null;
+    public ResponseEntity<ApiResponse<String>> forgetPassword(@RequestBody EmailRequest email){
+        return ResponseEntity.ok(new ApiResponse<>(true, "Password reset functionality not implemented yet", null));
     }
     
-
 
 }
