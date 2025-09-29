@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import dev.api.authentication.dto.LoginRequest;
 import dev.api.authentication.dto.RegistrationRequest;
+import dev.api.common.ApiResponse;
 import dev.api.common.EmailService;
 import dev.api.common.GeneraleService;
 import dev.api.common.enums.Roles;
@@ -60,16 +61,16 @@ public class AuthenticationService {
         this.generaleService = generaleService;
     }
 
-    public ResponseEntity<?> registerNewStudent(RegistrationRequest request) {
+    public ResponseEntity<ApiResponse<?>> registerNewStudent(RegistrationRequest request) {
 
         Map<String, String> user = new HashMap<>();
         if (studentsRepository.findByUsername(request.getUsername()).isPresent() ||
                 studentsRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username or email already exists");
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Username or email already exists", null));
         } else {
 
             if (!request.getPassword().equals(request.getConfirmPassword())) {
-                return ResponseEntity.badRequest().body("Passwords do not match");
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Passwords do not match", null));
             }
 
             String passwordHashed = passwordEncoder.encode(request.getPassword());
@@ -83,20 +84,20 @@ public class AuthenticationService {
             user.put("email", student.getEmail());
 
         }
-        return ResponseEntity.status(201).body(user);
+        return ResponseEntity.status(201).body(new ApiResponse<>(true, "Student registered successfully. Please check your email for verification.", user));
     }
 
-    public ResponseEntity<?> registerNewInstructor(RegistrationRequest request) {
+    public ResponseEntity<ApiResponse<?>> registerNewInstructor(RegistrationRequest request) {
 
         Map<String, String> user = new HashMap<>();
 
         if (instructorsRepository.findByUsername(request.getUsername()).isPresent() ||
                 instructorsRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username or email already exists");
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Username or email already exists", null));
         } else {
 
             if (!request.getPassword().equals(request.getConfirmPassword())) {
-                return ResponseEntity.badRequest().body("Passwords do not match");
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Passwords do not match", null));
             }
 
             String passwordHashed = passwordEncoder.encode(request.getPassword());
@@ -110,10 +111,10 @@ public class AuthenticationService {
             user.put("email", instructor.getEmail());
         }
 
-        return ResponseEntity.status(201).body(user);
+        return ResponseEntity.status(201).body(new ApiResponse<>(true, "Instructor registered successfully. Please check your email for verification.", user));
     }
 
-    public ResponseEntity<?> login(LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<?>> login(LoginRequest request, HttpServletResponse response) {
 
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken
                 .unauthenticated(request.getUsername(), request.getPassword());
@@ -132,39 +133,39 @@ public class AuthenticationService {
 
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
             return ResponseEntity.ok()
-                    .body(generaleService.getUserInfos(authenticationRequest.getName(), jwt));
+                    .body(new ApiResponse<>(true, "Login successful", generaleService.getUserInfos(authenticationRequest.getName(), jwt)));
 
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+            return ResponseEntity.status(401).body(new ApiResponse<>(false, "Invalid username or password", null));
         } catch (Exception e) {
             if (e.getMessage().equals("User is disabled")) {
-                return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("verify you email");
+                return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(new ApiResponse<>(false, "Please verify your email first", null));
             }
-            return ResponseEntity.status(500).body("An unexpected error occurred during login.");
+            return ResponseEntity.status(500).body(new ApiResponse<>(false, "An unexpected error occurred during login", null));
         }
     }
 
-    public ResponseEntity<String> resendEmailVerification(String email) {
+    public ResponseEntity<ApiResponse<String>> resendEmailVerification(String email) {
 
         Student student = studentsRepository.findByEmail(email).orElse(null);
         if (student != null) {
             if (student.isEnabled())
-                return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "This account has already been verified, please, login.", null));
 
             sendEmailVerification(student, null);
-            return ResponseEntity.ok("Please, check your email for to complete your registration");
+            return ResponseEntity.ok(new ApiResponse<>(true, "Please, check your email to complete your registration", null));
         }
 
         Instructors instructor = instructorsRepository.findByEmail(email).orElse(null);
         if (instructor != null) {
             if (instructor.isEnabled())
-                return ResponseEntity.badRequest().body("This account has already been verified, please, login.");
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "This account has already been verified, please, login.", null));
 
             sendEmailVerification(null, instructor);
-            return ResponseEntity.ok("Please, check your email for to complete your registration");
+            return ResponseEntity.ok(new ApiResponse<>(true, "Please, check your email to complete your registration", null));
         }
 
-        return ResponseEntity.status(HttpStatus.SC_GONE).body("user not found");
+        return ResponseEntity.status(HttpStatus.SC_GONE).body(new ApiResponse<>(false, "User not found", null));
     }
 
     private void sendEmailVerification(Student student, Instructors instructor) {

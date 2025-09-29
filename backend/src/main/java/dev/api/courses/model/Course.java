@@ -28,8 +28,14 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Table(name = "courses")
+@Getter
+@Setter
+@Builder
 @Entity
 public class Course {
 
@@ -98,168 +104,5 @@ public class Course {
 
     @ManyToMany(mappedBy = "courses")
     private Set<Order> orders = new HashSet<>();
-
-    public Course() {
-    }
-
-    public Instructors getInstructor() {
-        return instructor;
-    }
-
-    public void setInstructor(Instructors instructor) {
-        this.instructor = instructor;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public Boolean getIsFree() {
-        return isFree;
-    }
-
-    public void setIsFree(Boolean isFree) {
-        this.isFree = isFree;
-    }
-
-    public Languages getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(Languages language) {
-        this.language = language;
-    }
-
-    public String getCouponCode() {
-        return couponCode;
-    }
-
-    public void setCouponCode(String couponCode) {
-        this.couponCode = couponCode;
-    }
-
-    public BigDecimal getRating() {
-        return rating;
-    }
-
-    public void setRating(BigDecimal rating) {
-        this.rating = rating;
-    }
-
-    public Integer getCourseDurationMinutes() {
-        return courseDurationMinutes;
-    }
-
-    public void setCourseDurationMinutes(Integer courseDurationMinutes) {
-        this.courseDurationMinutes = courseDurationMinutes;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Set<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public Set<Section> getSections() {
-        return sections;
-    }
-
-    public void setSections(Set<Section> sections) {
-        this.sections = sections;
-    }
-
-    public Set<Student> getStudents() {
-        return students;
-    }
-
-    public void setStudents(Set<Student> students) {
-        this.students = students;
-    }
-
-    public Integer getCourseId() {
-        return courseId;
-    }
-
-    public void setCourseId(Integer courseId) {
-        this.courseId = courseId;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Set<MainCategory> getMainCategories() {
-        return mainCategories;
-    }
-
-    public void setMainCategories(Set<MainCategory> mainCategories) {
-        this.mainCategories = mainCategories;
-    }
-
-    public String getSubTitle() {
-        return subTitle;
-    }
-
-    public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle;
-    }
-
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
-    public Set<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(Set<Order> orders) {
-        this.orders = orders;
-    }
 
 }

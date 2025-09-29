@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS lessons (
     section_id INTEGER NOT NULL REFERENCES sections(section_id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     lesson_type VARCHAR(10) NOT NULL CHECK (lesson_type IN ('VIDEO', 'TEXT')),
+    text_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS video_content (
 CREATE TABLE IF NOT EXISTS text_content (
     text_content_id SERIAL PRIMARY KEY,
     lesson_id INTEGER UNIQUE NOT NULL REFERENCES lessons(lesson_id) ON DELETE CASCADE,
-    content TEXT NOT NULL
+    text_url TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS resources (

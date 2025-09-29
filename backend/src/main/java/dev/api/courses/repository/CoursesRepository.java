@@ -10,8 +10,4 @@ import org.springframework.stereotype.Repository;
 import dev.api.courses.model.Course;
 
 @Repository
-public interface CoursesRepository extends JpaRepository<Course , Integer>{
-    
-    @Query("SELECT c FROM Course c WHERE c.status = 'PENDING_REVIEW'")
-    List<Course> findAllPendingCourses();
-}
+public interface CoursesRepository extends JpaRepository<Course , Integer>{}

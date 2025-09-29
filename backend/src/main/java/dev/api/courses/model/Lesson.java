@@ -23,13 +23,20 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "lessons")
 @Entity
-class Lesson {
+public class Lesson {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,11 +46,12 @@ class Lesson {
     @Column(nullable = false, length = 255)
     private String title;
 
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private LessonType lessonType;
 
+    @Column(name = "text_url", columnDefinition = "TEXT")
+    private String textUrl;
    
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -58,9 +66,7 @@ class Lesson {
     @OneToOne(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     private VideoContent videoContent;
 
-    @OneToOne(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
-    private TextContent textContent;
-
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Resource> resources = new HashSet<>();
 }
